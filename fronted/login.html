@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Cafetería Universitaria</title>
+    <!-- Asegúrate de que la ruta a tu CSS sea correcta -->
+    <link rel="stylesheet" href="CSS/styles.css">
+</head>
+<body>
+
+    <div class="login-card">
+        <h2>Cafetería Universitaria</h2>
+        
+        <!-- SECCIÓN 1: Inicio de Sesión Formal -->
+        <div id="login-form">
+            <input type="email" id="email" placeholder="Correo institucional" required>
+            <input type="password" id="password" placeholder="Contraseña" required>
+            <button onclick="iniciarSesion()">Entrar</button>
+        </div>
+
+        <div class="divider"><span>O</span></div>
+
+        <!-- SECCIÓN 2: Acceso Rápido para Invitados -->
+        <button class="guest-btn" onclick="entrarComoInvitado()">
+            Comprar sin iniciar sesión
+        </button>
+        
+        <hr>
+
+        <!-- SECCIÓN 3: Enlace al Registro (Solo Estudiantes) -->
+        <p>¿Eres nuevo? <a href="register.html">Crea una cuenta aquí</a></p>
+        
+        <!-- Área para mensajes de error o éxito -->
+        <p id="message" style="color: red; font-weight: bold;"></p>
+    </div>
+
+
+    <script src="js/login.js"></script>
+
+</body>
+</html>
