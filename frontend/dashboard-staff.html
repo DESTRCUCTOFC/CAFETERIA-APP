@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel de Administración - Staff</title>
+    <link rel="stylesheet" href="CSS/styles.css">
+</head>
+<body>
+    <header>
+        <h1>Panel de Gestión de Cafetería</h1>
+        <p id="staff-info"></p>
+        <button id="logout-btn">Salir</button>
+    </header>
+
+    <main>
+        <section id="admin-tools">
+            <h2>Gestión del Menú</h2>
+            <form id="menu-form">
+                <input type="text" id="prod-nombre" placeholder="Nombre del platillo">
+                <input type="number" id="prod-precio" placeholder="Precio">
+                <button type="submit">Agregar al Menú</button>
+            </form>
+        </section>
+    </main>
+
+    <script src="js/dashboard-staff.js"></script>
+</body>
+</html>

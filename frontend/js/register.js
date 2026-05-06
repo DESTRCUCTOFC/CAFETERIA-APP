@@ -5,7 +5,7 @@ async function registrarEstudiante() {
     const message = document.getElementById('message');
 
     if (!name || !email || !password) {
-        message.innerText = "❌ Todos los campos son obligatorios";
+        message.innerText = "🧐 Todos los campos son obligatorios";
         return;
     }
 
@@ -28,6 +28,6 @@ async function registrarEstudiante() {
             message.innerText = "❌ " + data.message;
         }
     } catch (error) {
-        message.innerText = "❌ Error de conexión.";
+        message.innerText = "😠 Error de conexión.";
     }
 }

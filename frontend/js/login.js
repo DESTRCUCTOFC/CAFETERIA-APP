@@ -5,7 +5,7 @@ async function iniciarSesion() {
     const message = document.getElementById('message');
 
     if (!email || !password) {
-        message.innerText = "❌ Por favor llena todos los campos";
+        message.innerText = "😨 Por favor llena todos los campos";
         return;
     }
 
@@ -31,7 +31,7 @@ async function iniciarSesion() {
             message.innerText = "❌ " + data.message;
         }
     } catch (error) {
-        message.innerText = "❌ Error de conexión con el servidor.";
+        message.innerText = "😩 Error de conexión con el servidor.";
     }
 }
 
@@ -68,7 +68,7 @@ async function iniciarSesion() {
         if (response.ok) {
             localStorage.setItem('user', JSON.stringify(data.user));
 
-            // REDIRECCIÓN AUTOMÁTICA BASADA EN EL CORREO IDENTIFICADO
+            // REDIRECCIÓN AUTOMÁTICA 
             if (data.user.role === 'staff') {
                 window.location.href = 'dashboard-staff.html';
             } else {
