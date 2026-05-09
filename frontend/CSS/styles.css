@@ -1,0 +1,97 @@
+:root {
+  --ug-primary: #0a2b3e;      /* azul profundo UG */
+  --ug-primary-dark: #051e2c;
+  --ug-accent: #d9a13b;        /* dorado */
+  --ug-bg: #f1f5f9;
+  --ug-card: #ffffff;
+  --ug-border: #e2e8f0;
+  --ug-text: #1f2937;
+  --ug-muted: #64748b;
+}
+
+body {
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  color: var(--ug-text);
+  background-color: var(--ug-bg);
+}
+
+
+.auth-page {
+  min-height: 100vh;
+}
+
+.auth-wrapper {
+  background: linear-gradient(135deg, var(--ug-primary), #2c7da0);
+  padding: 2rem 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+}
+
+.auth-card {
+  border-radius: 1.5rem;
+  overflow: hidden;
+  backdrop-filter: blur(2px);
+  background: rgba(255, 255, 255, 0.98);
+  border: none;
+}
+
+.brand-badge {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(10, 43, 62, 0.1);
+  color: var(--ug-primary);
+  font-size: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+.form-control {
+  border-radius: 0.9rem;
+  border: 1px solid var(--ug-border);
+  padding: 0.6rem 1rem;
+}
+
+.form-control:focus {
+  box-shadow: 0 0 0 0.2rem rgba(10, 43, 62, 0.15);
+  border-color: var(--ug-primary);
+}
+
+.btn {
+  border-radius: 2rem;
+  font-weight: 500;
+}
+
+.btn-primary {
+  background-color: var(--ug-primary);
+  border-color: var(--ug-primary);
+}
+.btn-primary:hover {
+  background-color: var(--ug-primary-dark);
+  border-color: var(--ug-primary-dark);
+}
+
+.btn-outline-secondary {
+  border-radius: 2rem;
+}
+
+
+.footer {
+  background: var(--ug-card);
+  border-top: 1px solid var(--ug-border);
+  padding: 1.5rem 0;
+  margin-top: 3rem;
+  color: var(--ug-muted);
+}
+
+/* ===== utilidades extras ===== */
+.badge-ug {
+  background: rgba(10, 43, 62, 0.1);
+  color: var(--ug-primary);
+  padding: 0.35rem 0.85rem;
+  border-radius: 2rem;
+  font-weight: 500;
+}
