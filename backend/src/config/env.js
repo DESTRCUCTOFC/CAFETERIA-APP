@@ -17,6 +17,6 @@ const required = [
 
 for (const key of required) {
     if (!process.env[key]) {
-        throw new Error(`❌ Error: La variable de entorno ${key} es obligatoria en el .env`);
+        throw new Error(` 😨Error: La variable de entorno ${key} es obligatoria en el .env`);
     }
 }

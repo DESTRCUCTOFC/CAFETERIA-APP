@@ -3,14 +3,16 @@ import cors from 'cors';
 import 'dotenv/config';
 import { db } from './config/firebase.js'; 
 import authRoutes from './modules/auth/auth.routes.js'; 
+import menuRoutes from './modules/menu/menu.routes.js'; 
 
 const app = express();
 
 app.use(cors());           
 app.use(express.json());   
 
-// CONECTA LAS RUTAS CON EL PREFIJO /api/auth
 app.use('/api/auth', authRoutes);
+
+app.use('/api/menu', menuRoutes);
 
 // PRUEBA 
 app.get('/', (req, res) => {
