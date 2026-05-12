@@ -95,3 +95,15 @@ body {
   border-radius: 2rem;
   font-weight: 500;
 }
+
+.btn-success{
+  background-color: var(--ug-primary);
+  border-color: var(--ug-primary);
+  color: white;
+  border-radius: 15px;
+
+}
+.btnRegistro:hover{
+  background-color: var(--ug-primary-dark);
+  border-color: var(--ug-primary-dark);
+}
