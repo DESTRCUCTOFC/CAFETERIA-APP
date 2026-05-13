@@ -4,6 +4,38 @@
     <meta charset="UTF-8">
     <title>Panel de Administración - Staff</title>
     <link rel="stylesheet" href="CSS/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        .table-container {
+            margin-top: 2rem;
+            width: 100%;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        .menu-img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        .form-grid {
+            display: grid;
+            gap: 10px;
+            max-width: 500px;
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -12,14 +44,37 @@
         <button id="logout-btn">Salir</button>
     </header>
 
-    <main>
+    <main style="padding: 20px;">
         <section id="admin-tools">
-            <h2>Gestión del Menú</h2>
-            <form id="menu-form">
-                <input type="text" id="prod-nombre" placeholder="Nombre del platillo">
-                <input type="number" id="prod-precio" placeholder="Precio">
+            <h2>Agregar Nuevo Platillo</h2>
+            <form id="menu-form" class="form-grid" enctype="multipart/form-data">
+                <input type="text" id="prod-nombre" name="nombre" placeholder="Nombre del platillo" required>
+                <input type="text" id="prod-descripcion" name="descripcion" placeholder="Breve descripción" required>
+                <input type="text" id="prod-categoria" name="categoria" placeholder="Categoría (Ej. Bebidas, Postres)" required>
+                <input type="number" id="prod-precio" name="precio" placeholder="Precio ($)" step="0.50" required>
+                <input type="file" id="prod-imagen" name="imagen" accept="image/*">
                 <button type="submit">Agregar al Menú</button>
             </form>
+        </section>
+
+        <section id="menu-view">
+            <h2>Menú Actual</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Imagen</th>
+                            <th>Platillo</th>
+                            <th>Categoría</th>
+                            <th>Precio</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-menu-body">
+                        </tbody>
+                </table>
+            </div>
         </section>
     </main>
 

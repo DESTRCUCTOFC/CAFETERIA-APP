@@ -2,25 +2,112 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Menú Estudiantil - Cafetería</title>
+    <title>Menú Estudiantil</title>
     <link rel="stylesheet" href="CSS/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 20px;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 10px;
+        }
+        /* Contenedor de las tarjetas tipo Grid */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+        /* Diseño de cada tarjeta de platillo */
+        .menu-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            transition: transform 0.2s;
+            display: flex;
+            flex-direction: column;
+        }
+        .menu-card:hover {
+            transform: translateY(-5px);
+        }
+        .menu-img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        .menu-info {
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+        .menu-title {
+            font-weight: 600;
+            font-size: 1.2rem;
+            margin: 0 0 8px 0;
+            color: #333;
+        }
+        .menu-desc {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            flex-grow: 1;
+        }
+        .menu-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+        }
+        .menu-price {
+            font-weight: 600;
+            color: #2ecc71;
+            font-size: 1.3rem;
+        }
+        /* Estilos para cuando el platillo se marque como agotado en el panel del Staff */
+        .agotado {
+            opacity: 0.6;
+            filter: grayscale(80%);
+        }
+        .badge-agotado {
+            background: #e74c3c;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        .badge-categoria {
+            background: #3498db;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+        }
+    </style>
 </head>
 <body>
     <header>
-        <h1 id="welcome-msg">Cargando...</h1>
+        <h1 id="welcome-msg">¡Hola, Invitado!</h1>
         <button id="logout-btn">Cerrar Sesión</button>
     </header>
 
     <main>
-        <section id="menu-container">
-            <h2>Menú del Día</h2>
-            <div id="productos-lista">
-                <!-- Alejandro pondrá aquí la cuadrícula de comida -->
+        <h2>Menú del Día</h2>
+        <div id="menu-container" class="menu-grid">
             </div>
-        </section>
     </main>
 
-    <!-- Toda la lógica externa -->
     <script src="js/dashboard-estudiante.js"></script>
 </body>
 </html>
