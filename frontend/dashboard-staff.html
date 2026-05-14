@@ -6,59 +6,95 @@
     <link rel="stylesheet" href="CSS/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        body {
+        body { font-family: 'Poppins', sans-serif; }
+        .page-header {
+            background: linear-gradient(90deg, var(--ug-primary), var(--ug-primary-dark));
+            color: white;
+            padding: 1rem 0.75rem;
+            box-shadow: 0 4px 18px rgba(10,43,62,0.08);
+        }
+        .page-header .header-inner {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        .page-title {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        #logout-btn {
+            width: 100px;
+            height: 36px;
+            color: var(--ug-primary);
+            font-weight: 600;
             font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            border-radius: 1.25rem; 
+            }
+
+        .content { max-width: 1100px; margin: 1.25rem auto; }
+
+        .card-panel {
+            background: var(--ug-card);
+            border: 1px solid var(--ug-border);
+            border-radius: 1rem;
+            padding: 1rem;
+            box-shadow: 0 6px 20px rgba(31,41,55,0.04);
+            margin-bottom: 1rem;
         }
-        .table-container {
-            margin-top: 2rem;
-            width: 100%;
-            overflow-x: auto;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-        }
-        th, td {
-            padding: 12px;
-            border-bottom: 1px solid #ddd;
-        }
-        .menu-img {
-            width: 60px;
-            height: 60px;
-            object-fit: cover;
-            border-radius: 8px;
-        }
-        .form-grid {
-            display: grid;
-            gap: 10px;
-            max-width: 500px;
-            margin-bottom: 20px;
-        }
+
+        .table-container { margin-top: 1rem; width: 100%; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th, td { padding: 12px; border-bottom: 1px solid var(--ug-border); }
+        th { background: linear-gradient(90deg, rgba(217,161,59,0.06), transparent); color: var(--ug-text); font-weight:600; }
+
+        .menu-img { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; }
+
+        .form-grid { display: grid; gap: 10px; max-width: 500px; margin-bottom: 20px; }
+        .form-grid .form-control { border-radius: 0.65rem; }
+        .form-actions { display:flex; gap:0.5rem; align-items:center; }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Panel de Gestión de Cafetería</h1>
-        <p id="staff-info"></p>
-        <button id="logout-btn">Salir</button>
+    <header class="page-header">
+        <div class="header-inner">
+            <div style="display:flex;align-items:center;gap:0.75rem;">
+                <div class="brand-badge">
+                  <img src="assets/Logotipo-UG.png" alt="Logo UG" style="width:36px;height:36px;object-fit:contain"/>
+                </div>
+                <div>
+                  <h1 class="page-title">Panel de Gestión de Cafetería</h1>
+                  <p id="staff-info" style="margin:0;color:rgba(255,255,255,0.9);font-size:0.9rem"></p>
+                </div>
+            </div>
+            <div>
+                <button id="logout-btn" class="btn btn-outline-secondary">Salir</button>
+            </div>
+        </div>
     </header>
 
-    <main style="padding: 20px;">
-        <section id="admin-tools">
-            <h2>Agregar Nuevo Platillo</h2>
+    <main class="content">
+        <section id="admin-tools" class="card-panel">
+            <h2 style="margin-top:0">Agregar Nuevo Platillo</h2>
             <form id="menu-form" class="form-grid" enctype="multipart/form-data">
-                <input type="text" id="prod-nombre" name="nombre" placeholder="Nombre del platillo" required>
-                <input type="text" id="prod-descripcion" name="descripcion" placeholder="Breve descripción" required>
-                <input type="text" id="prod-categoria" name="categoria" placeholder="Categoría (Ej. Bebidas, Postres)" required>
-                <input type="number" id="prod-precio" name="precio" placeholder="Precio ($)" step="0.50" required>
-                <input type="file" id="prod-imagen" name="imagen" accept="image/*">
-                <button type="submit">Agregar al Menú</button>
+                <input type="text" id="prod-nombre" name="nombre" class="form-control" placeholder="Nombre del platillo" required>
+                <input type="text" id="prod-descripcion" name="descripcion" class="form-control" placeholder="Breve descripción" required>
+                <input type="text" id="prod-categoria" name="categoria" class="form-control" placeholder="Categoría (Ej. Bebidas, Postres)" required>
+                <input type="number" id="prod-precio" name="precio" class="form-control" placeholder="Precio ($)" step="0.50" required>
+                <input type="file" id="prod-imagen" name="imagen" class="form-control" accept="image/*">
+                <div class="form-actions">
+                  <button type="submit" class="btn btn-success">Agregar al Menú</button>
+                  <button type="button" id="clear-form" class="btn btn-outline-secondary">Limpiar</button>
+                </div>
             </form>
         </section>
 
-        <section id="menu-view">
-            <h2>Menú Actual</h2>
+        <section id="menu-view" class="card-panel">
+            <h2 style="margin-top:0">Menú Actual</h2>
             <div class="table-container">
                 <table>
                     <thead>

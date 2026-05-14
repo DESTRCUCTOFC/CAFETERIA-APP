@@ -20,6 +20,8 @@ document.addEventListener('DOMContentLoaded', () => {
     cargarMenu();
 
     document.getElementById('menu-form').addEventListener('submit', agregarPlatillo);
+    const clearBtn = document.getElementById('clear-form');
+    if (clearBtn) clearBtn.addEventListener('click', () => document.getElementById('menu-form').reset());
 });
 
 async function cargarMenu() {
@@ -49,7 +51,7 @@ async function cargarMenu() {
                     ${item.disponible ? 'Disponible' : 'Agotado'}
                 </td>
                 <td>
-                    <button onclick="cambiarDisponibilidad('${item.id}', ${!item.disponible})">
+                    <button class="btn btn-outline-secondary btn-sm" onclick="cambiarDisponibilidad('${item.id}', ${!item.disponible})">
                         Marcar como ${item.disponible ? 'Agotado' : 'Disponible'}
                     </button>
                 </td>
