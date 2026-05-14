@@ -2,43 +2,110 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Menú Estudiantil</title>
+    <title>Menú Estudiantil - Cafetería UG</title>
+    <!-- Bootstrap CSS (necesario para el offcanvas y los estilos de formularios) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" 
+          rel="stylesheet" 
+          integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" 
+          crossorigin="anonymous">
+    <!-- Tus estilos institucionales -->
     <link rel="stylesheet" href="CSS/styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- Fuente Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* ===== ESTILOS UG (iguales a los que ya tenías) ===== */
         body {
             font-family: 'Poppins', sans-serif;
-            background-color: #f4f7f6;
+            background-color: var(--ug-bg, #f1f5f9);
             margin: 0;
-            padding: 20px;
+            padding: 0;
         }
-        header {
+        .page-header {
+            background: linear-gradient(90deg, var(--ug-primary), var(--ug-primary-dark));
+            color: white;
+            padding: 1rem 0.75rem;
+            box-shadow: 0 4px 18px rgba(10,43,62,0.08);
+        }
+        .header-inner {
             display: flex;
-            justify-content: space-between;
+            gap: 1rem;
             align-items: center;
-            margin-bottom: 2rem;
-            border-bottom: 2px solid #ddd;
-            padding-bottom: 10px;
+            justify-content: space-between;
+            max-width: 1280px;
+            margin: 0 auto;
+            flex-wrap: wrap;
         }
-        /* Contenedor de las tarjetas tipo Grid */
+        .brand-area {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .brand-badge-sm {
+            width: 48px;
+            height: 48px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .brand-badge-sm img {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+        }
+        .page-title {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        .user-greeting {
+            margin: 0;
+            color: rgba(255,255,255,0.9);
+            font-size: 0.85rem;
+        }
+        .btn-outline-light-custom {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.5);
+            color: white;
+            border-radius: 2rem;
+            padding: 0.4rem 1rem;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+        .btn-outline-light-custom:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        .content-container {
+            max-width: 1280px;
+            margin: 1.5rem auto;
+            padding: 0 1rem;
+        }
+        .filters-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .filters-bar input, .filters-bar select {
+            flex: 1;
+            min-width: 180px;
+        }
         .menu-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 25px;
-            margin-top: 20px;
+            gap: 1.75rem;
         }
-        /* Diseño de cada tarjeta de platillo */
         .menu-card {
-            background: white;
-            border-radius: 12px;
+            background: var(--ug-card);
+            border-radius: 1.25rem;
             overflow: hidden;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
             transition: transform 0.2s;
-            display: flex;
-            flex-direction: column;
+            border: 1px solid var(--ug-border);
         }
         .menu-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-4px);
         }
         .menu-img {
             width: 100%;
@@ -46,68 +113,116 @@
             object-fit: cover;
         }
         .menu-info {
-            padding: 15px;
+            padding: 1.25rem;
             display: flex;
             flex-direction: column;
-            flex-grow: 1;
         }
         .menu-title {
-            font-weight: 600;
+            font-weight: 700;
             font-size: 1.2rem;
-            margin: 0 0 8px 0;
-            color: #333;
+            margin: 0 0 0.5rem;
+        }
+        .badge-categoria {
+            background: rgba(10,43,62,0.1);
+            color: var(--ug-primary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 2rem;
+            font-size: 0.7rem;
+            display: inline-block;
+            width: fit-content;
+            margin-bottom: 0.75rem;
         }
         .menu-desc {
-            color: #666;
-            font-size: 0.9rem;
-            margin-bottom: 15px;
+            color: var(--ug-muted);
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
             flex-grow: 1;
         }
         .menu-footer {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: auto;
         }
         .menu-price {
-            font-weight: 600;
-            color: #2ecc71;
+            font-weight: 700;
+            color: #2c7da0;
             font-size: 1.3rem;
         }
-        /* Estilos para cuando el platillo se marque como agotado en el panel del Staff */
         .agotado {
-            opacity: 0.6;
-            filter: grayscale(80%);
+            opacity: 0.7;
+            filter: grayscale(0.2);
         }
         .badge-agotado {
             background: #e74c3c;
             color: white;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            font-weight: bold;
+            padding: 0.2rem 0.6rem;
+            border-radius: 2rem;
+            font-size: 0.7rem;
         }
-        .badge-categoria {
-            background: #3498db;
-            color: white;
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-size: 0.75rem;
+        @media (max-width: 768px) {
+            .header-inner { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+            .filters-bar { flex-direction: column; }
         }
     </style>
 </head>
 <body>
-    <header>
-        <h1 id="welcome-msg">¡Hola, Invitado!</h1>
-        <button id="logout-btn">Cerrar Sesión</button>
+    <header class="page-header">
+        <div class="header-inner">
+            <div class="brand-area">
+                <div class="brand-badge-sm">
+                    <img src="assets/Logotipo-UG.png" alt="Logo UG">
+                </div>
+                <div>
+                    <h1 class="page-title">Menú Estudiantil</h1>
+                    <p id="welcome-msg" class="user-greeting">¡Hola, Invitado!</p>
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <button id="cart-btn" class="btn-outline-light-custom position-relative" type="button" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas">
+                    🛒 Carrito
+                    <span id="cartCount" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.7rem;">0</span>
+                </button>
+                <button id="logout-btn" class="btn-outline-light-custom">Cerrar sesión</button>
+            </div>
+        </div>
     </header>
 
-    <main>
-        <h2>Menú del Día</h2>
-        <div id="menu-container" class="menu-grid">
-            </div>
+    <main class="content-container">
+        <div class="filters-bar">
+            <input type="text" id="searchInput" class="form-control" placeholder="🔍 Buscar...">
+            <select id="sortSelect" class="form-select">
+                <option value="name_asc">Nombre (A-Z)</option>
+                <option value="price_asc">Precio (menor a mayor)</option>
+                <option value="price_desc">Precio (mayor a menor)</option>
+            </select>
+        </div>
+        <h2 class="mb-3">Menú del Día</h2>
+        <div id="menu-container" class="menu-grid"></div>
     </main>
 
-    <script src="js/dashboard-estudiante.js"></script>
+    <!-- Offcanvas del carrito (con todos los IDs necesarios) -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="cartOffcanvas">
+        <div class="offcanvas-header border-bottom">
+            <h5 class="offcanvas-title">Tu Orden</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+        </div>
+        <div class="offcanvas-body d-flex flex-column gap-3">
+            <div id="cartItems" class="d-flex flex-column gap-2"></div>
+            <div id="cartEmpty" class="text-muted small d-none">Tu orden está vacío</div>
+            <div class="mt-auto border-top pt-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="fw-semibold">Total</span>
+                    <span class="fw-bold" id="cartTotal">$0</span>
+                </div>
+                <button class="btn btn-outline-primary w-100 mt-2" id="checkoutBtn">Pagar</button>
+                <button class="btn btn-outline-secondary w-100 mt-2" id="clearCartBtn">Borrar orden</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS (necesario para el offcanvas) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Tu script principal (debe ser type="module" porque importa desde cart.js) -->
+    <script type="module" src="js/dashboard-estudiante.js"></script>
 </body>
 </html>
