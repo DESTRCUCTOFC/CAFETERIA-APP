@@ -9,7 +9,6 @@ function setupCartEvents() {
     const cartItemsContainer = document.getElementById('cartItems');
     if (!cartItemsContainer) return;
 
-    // Eliminar producto
     cartItemsContainer.addEventListener('click', (e) => {
         const btn = e.target.closest('[data-remove]');
         if (btn) {
@@ -167,7 +166,7 @@ function renderMenuFiltrado(platillos) {
     });
 }
 
-// ========== INICIALIZACIÓN ==========
+
 document.addEventListener('DOMContentLoaded', () => {
     const user = JSON.parse(localStorage.getItem('user'));
     if (!user) return window.location.href = 'login.html';
