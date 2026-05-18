@@ -1,8 +1,25 @@
-import { readCart, addToCart, updateQty, removeItem, clearCart, renderCartHTML } from './cart.js';
+import { readCart, addToCart, updateQty, removeItem, clearCart, renderCartHTML, cartTotals } from './cart.js';
 
 const API_URL = 'http://localhost:3000/api/menu';
+const ORDERS_KEY = 'ug_orders_v1';
 let allPlatillos = [];
 let cart = readCart();
+
+function readOrders() {
+    try {
+        const data = JSON.parse(localStorage.getItem(ORDERS_KEY));
+        return Array.isArray(data) ? data : [];
+    } catch {
+        return [];
+    }
+}
+
+function saveOrder(order) {
+    const orders = readOrders();
+    orders.unshift(order);
+    localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
+    return orders;
+}
 
 
 function setupCartEvents() {
@@ -194,7 +211,34 @@ document.addEventListener('DOMContentLoaded', () => {
     const checkoutBtn = document.getElementById('checkoutBtn');
     if (clearCartBtn) clearCartBtn.onclick = () => { cart = clearCart(); paintCart(); };
     if (checkoutBtn) checkoutBtn.onclick = () => {
-        if (!cart.length) alert('Carrito vacío');
-        else alert('To be implemented');
+        if (!cart.length) {
+            alert('Carrito vacío');
+            return;
+        }
+
+        const userData = JSON.parse(localStorage.getItem('user')) || {};
+        const { total } = cartTotals(cart);
+        const now = new Date();
+        const order = {
+            id: `ORD-${Date.now().toString().slice(-6)}`,
+            studentName: userData.name || 'Invitado',
+            studentEmail: userData.email || '',
+            createdAt: now.toISOString(),
+            status: 'pendiente',
+            items: cart.map(item => ({
+                id: item.id,
+                name: item.name,
+                price: Number(item.price),
+                qty: item.qty,
+                imageUrl: item.imageUrl || ''
+            })),
+            total: Number(total.toFixed(2)),
+            notes: ''
+        };
+
+        saveOrder(order);
+        cart = clearCart();
+        paintCart();
+        alert('Tu orden quedó registrada. El staff ya puede verla.');
     };
 });
