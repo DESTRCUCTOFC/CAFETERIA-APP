@@ -1,12 +1,17 @@
-// FUNCIÓN para usuarios con cuenta (staff o estudiante)
-async function iniciarSesion() {
+import { showAlert } from "./utilities.js";
+
+//Elementos interactuables
+const btnInicioSesion = document.getElementById('iniciarSesionBtn')
+const btnInvitado = document.getElementById('entarComoInvitadoBtn')
+
+
+btnInicioSesion?.addEventListener("click", async (e) => {
+    e.preventDefault();
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
-    const message = document.getElementById('message');
 
-    // Validación de campos vacíos
     if (!email || !password) {
-        message.innerText = "😨 Por favor llena todos los campos";
+        showAlert('Por favor llena todos los campos')
         return;
     }
 
@@ -21,7 +26,7 @@ async function iniciarSesion() {
 
         if (response.ok) {
             localStorage.setItem('user', JSON.stringify(data.user));
-            
+
             // Redirección según rol
             if (data.user.role === 'staff') {
                 window.location.href = 'dashboard-staff.html';
@@ -32,20 +37,22 @@ async function iniciarSesion() {
             message.innerText = "❌ " + data.message;
         }
     } catch (error) {
-        message.innerText = "😩 Error de conexión con el servidor.";
+        showAlert('Error de conexión con el servidor.')
+
     }
-}
+})
+
 
 // FUNCIÓN para el botón de "Comprar sin iniciar sesión"
-function entrarComoInvitado() {
-    // Crear objeto usuario invitado
-    const invitado = { 
-        name: "Invitado", 
-        role: "student", 
-        isGuest: true 
+btnInvitado?.addEventListener('click', (e) => {
+    const invitado = {
+        name: "Invitado",
+        role: "student",
+        isGuest: true
     };
     // Guardar en localStorage
     localStorage.setItem('user', JSON.stringify(invitado));
     // Redirigir al dashboard de estudiante
     window.location.href = 'dashboard-estudiante.html';
-}
+
+})
