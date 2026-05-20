@@ -1,7 +1,8 @@
 import Stripe from 'stripe';
-import { env } from '../../config/env.js';
+import { env } from '../../config/env.js'; // Tu estructura de configuración
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+const stripe = new Stripe(env.STRIPE_SECRET_KEY || process.env.STRIPE_SECRET_KEY);
 
 export const pay = async (req, res) => {
     try {
