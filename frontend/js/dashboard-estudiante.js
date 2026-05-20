@@ -1,6 +1,6 @@
 import { readCart, addToCart, updateQty, removeItem, clearCart, renderCartHTML, cartTotals } from './cart.js';
 
-const API_URL = 'http://localhost:3000/api/menu';
+const API_URL = 'http://localhost:4000/api/menu';
 const ORDERS_KEY = 'ug_orders_v1';
 let allPlatillos = [];
 let cart = readCart();
@@ -210,35 +210,133 @@ document.addEventListener('DOMContentLoaded', () => {
     const clearCartBtn = document.getElementById('clearCartBtn');
     const checkoutBtn = document.getElementById('checkoutBtn');
     if (clearCartBtn) clearCartBtn.onclick = () => { cart = clearCart(); paintCart(); };
-    if (checkoutBtn) checkoutBtn.onclick = () => {
-        if (!cart.length) {
-            alert('Carrito vacío');
-            return;
-        }
 
-        const userData = JSON.parse(localStorage.getItem('user')) || {};
-        const { total } = cartTotals(cart);
-        const now = new Date();
-        const order = {
-            id: `ORD-${Date.now().toString().slice(-6)}`,
-            studentName: userData.name || 'Invitado',
-            studentEmail: userData.email || '',
-            createdAt: now.toISOString(),
-            status: 'pendiente',
-            items: cart.map(item => ({
-                id: item.id,
-                name: item.name,
-                price: Number(item.price),
-                qty: item.qty,
-                imageUrl: item.imageUrl || ''
-            })),
-            total: Number(total.toFixed(2)),
-            notes: ''
-        };
+    // LÓGICA DE PAGOS
+    
+    const btnEfectivo = document.getElementById('btn-efectivo');
+    const btnTarjeta = document.getElementById('btn-tarjeta'); 
+    const modalTarjetaEl = document.getElementById('modalTarjeta');
+    const btnConfirmarTarjeta = document.getElementById('submit-payment');
 
-        saveOrder(order);
-        cart = clearCart();
-        paintCart();
-        alert('Tu orden quedó registrada. El staff ya puede verla.');
-    };
+    // PAGO EN EFECTIVO ---
+    if (btnEfectivo) {
+        btnEfectivo.addEventListener('click', () => {
+            const { total } = cartTotals(cart);
+            if (total <= 0) {
+                alert('Carrito vacío. Agrega comida a tu orden.');
+                return;
+            }
+
+            const userData = JSON.parse(localStorage.getItem('user')) || {};
+            const order = {
+                id: `ORD-${Date.now().toString().slice(-6)}`,
+                studentName: userData.name || 'Invitado',
+                studentEmail: userData.email || '',
+                createdAt: new Date().toISOString(),
+                status: 'pendiente',
+                items: cart.map(item => ({ ...item, price: Number(item.price) })),
+                total: Number(total.toFixed(2)),
+                notes: '💵 PAGO EN EFECTIVO (Cobrar en caja)'
+            };
+
+            saveOrder(order);
+            cart = clearCart();
+            paintCart();
+            alert('¡Orden registrada! Pasa a la caja de la cafetería a realizar tu pago en efectivo ¡BUEN DIA !.');
+            window.location.reload();
+        });
+    }
+
+    // PAGO CON TARJETA (STRIPE) 
+    if (modalTarjetaEl && btnConfirmarTarjeta) {
+        const stripe = Stripe('pk_test_51TEBCLI5Hs25VoV6fo3q1y5CXlEogTuGXi7nP1B9OeJ3JC54nitNNKtmwIUFHP2qTdmKMRQyftDGhqYlqb2goYTh00rcknGEPN');
+        let elements, cardElement, clientSecretActual = '';
+
+        modalTarjetaEl.addEventListener('show.bs.modal', async (event) => {
+            const { total } = cartTotals(cart);
+            if (total <= 0) {
+                event.preventDefault(); // Detiene el modal si el carrito está vacío
+                return alert('Carrito vacío. Agrega comida antes de pagar con tarjeta.');
+            }
+
+            btnConfirmarTarjeta.textContent = `Confirmar Pago de $${total.toFixed(2)}`;
+            btnConfirmarTarjeta.disabled = true; // Bloqueado mientras pedimos permiso al backend
+
+            try {
+                // Pintamos la tarjeta de Stripe si no existe
+                if (!elements) {
+                    elements = stripe.elements();
+                    cardElement = elements.create('card', {
+                        style: { base: { fontSize: '16px', color: '#32325d', fontFamily: 'Poppins, sans-serif' } }
+                    });
+                    cardElement.mount('#card-element');
+                    cardElement.on('change', ({error}) => {
+                        document.getElementById('card-errors').textContent = error ? error.message : '';
+                    });
+                }
+
+                // Pedimos el token al backend de Express
+                const userData = JSON.parse(localStorage.getItem('user')) || {};
+                const respuesta = await fetch('http://localhost:4000/api/payments/create-intent', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ amount: total, customerEmail: userData.email || "estudiante@uni.edu.mx" })
+                });
+
+                const resultado = await respuesta.json();
+                if (!resultado.success) throw new Error(resultado.message);
+
+                clientSecretActual = resultado.clientSecret;
+                btnConfirmarTarjeta.disabled = false; 
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('card-errors').textContent = 'Error al conectar con el servidor. Cierra e intenta de nuevo.';
+            }
+        });
+
+        // Cuando le dan clic en Confirmar dentro del cuadrito flotante
+        btnConfirmarTarjeta.addEventListener('click', async () => {
+            btnConfirmarTarjeta.disabled = true;
+            btnConfirmarTarjeta.textContent = 'Procesando pago... ⏳';
+
+            const userData = JSON.parse(localStorage.getItem('user')) || {};
+            const { paymentIntent, error } = await stripe.confirmCardPayment(clientSecretActual, {
+                payment_method: {
+                    card: cardElement,
+                    billing_details: { name: userData.name || 'Estudiante UG' } 
+                }
+            });
+
+            if (error) {
+                document.getElementById('card-errors').textContent = error.message;
+                btnConfirmarTarjeta.disabled = false;
+                btnConfirmarTarjeta.textContent = 'Reintentar Pago';
+            } else if (paymentIntent.status === 'succeeded') {
+                
+                // Creamos la orden de Firebase con la nota de Tarjeta
+                const { total } = cartTotals(cart);
+                const order = {
+                    id: `ORD-${Date.now().toString().slice(-6)}`,
+                    studentName: userData.name || 'Invitado',
+                    studentEmail: userData.email || '',
+                    createdAt: new Date().toISOString(),
+                    status: 'pendiente',
+                    items: cart.map(item => ({ ...item, price: Number(item.price) })),
+                    total: Number(total.toFixed(2)),
+                    notes: '💳 PAGADO CON TARJETA (Stripe)'
+                };
+
+                saveOrder(order);
+                cart = clearCart();
+                paintCart();
+
+                // Ocultamos el cuadro flotante
+                const modalInstancia = bootstrap.Modal.getInstance(modalTarjetaEl);
+                modalInstancia.hide();
+                
+                alert('¡PAGO EXITOSO! 💸 Tu orden ya está pagada y lista para prepararse. ¡BUEN DIA !');
+                window.location.reload();
+            }
+        });
+    }
 });

@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:3000/api/menu';
+const API_URL = 'http://localhost:4000/api/menu';
 
 document.addEventListener('DOMContentLoaded', () => {
     const user = JSON.parse(localStorage.getItem('user'));

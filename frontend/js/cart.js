@@ -59,3 +59,5 @@ export function renderCartHTML(cartItemsEl, cartEmptyEl, cartTotalEl, cartCountE
         </div>
     `).join("");
 }
+
+
