@@ -14,13 +14,17 @@ function readOrders() {
     }
 }
 
-function saveOrder(order) {
+async function saveOrder(order) {
     const orders = readOrders();
     orders.unshift(order);
     localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
+    await fetch('http://localhost:4000/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(order)
+    });
     return orders;
 }
-
 
 function setupCartEvents() {
     const cartItemsContainer = document.getElementById('cartItems');
@@ -82,36 +86,25 @@ async function cargarMenuEstudiante() {
 
             const tarjeta = document.createElement('div');
             tarjeta.className = claseTarjeta;
-            if (!estaAgotado) {
-                tarjeta.style.cursor = 'pointer';
-                tarjeta.onclick = () => {
-                    cart = addToCart({
-                        id: item.id,
-                        name: item.nombre,
-                        price: item.precio,
-                        imageUrl: item.imagenUrl
-                    });
-                    paintCart();
-                };
-            } else {
-                tarjeta.style.cursor = 'not-allowed';
-            }
-
             tarjeta.innerHTML = `
                 <img src="${imagenUrl}" alt="${item.nombre}" class="menu-img">
                 <div class="menu-info">
-                    <h3 class="menu-title">
-                        ${item.nombre} 
-                        ${etiquetaAgotado}
-                    </h3>
+                    <h3 class="menu-title">${item.nombre} ${etiquetaAgotado}</h3>
                     <p class="menu-desc">${item.descripcion || ''}</p>
                     <div class="menu-footer">
                         <span class="badge-categoria">${item.categoria || ''}</span>
                         <span class="menu-price">$${Number(item.precio).toFixed(2)}</span>
                     </div>
-                </div>
+                    ${!estaAgotado ? '<button class="btn btn-primary btn-agregar w-100 mt-2">Agregar al carrito</button>' : ''}    </div>
             `;
-            container.appendChild(tarjeta);
+
+if (!estaAgotado) {
+    tarjeta.querySelector('.btn-agregar').onclick = () => {
+        cart = addToCart({ id: item.id, name: item.nombre, price: item.precio, imageUrl: item.imagenUrl });
+        paintCart();
+    };
+}
+container.appendChild(tarjeta);
         });
     } catch (error) {
         console.error("Error al cargar el menú:", error);

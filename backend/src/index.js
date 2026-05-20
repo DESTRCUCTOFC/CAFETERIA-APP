@@ -5,6 +5,8 @@ import { db } from './config/firebase.js';
 import authRoutes from './modules/auth/auth.routes.js'; 
 import menuRoutes from './modules/menu/menu.routes.js'; 
 import paymentRoutes from './modules/payments/payments.routes.js';
+import ordersRoutes from './modules/orders/orders.routes.js'; 
+
 const app = express();
 
 app.use(cors());           
@@ -15,6 +17,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/menu', menuRoutes);
 
 app.use('/api/payments', paymentRoutes);
+app.use('/api/orders', ordersRoutes);
 
 // PRUEBA 
 app.get('/', (req, res) => {
