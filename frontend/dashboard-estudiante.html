@@ -178,6 +178,9 @@
                 </div>
             </div>
             <div class="d-flex gap-2">
+                <button id="viewOrdersBtn" class="btn-outline-light-custom" type="button" data-bs-toggle="modal" data-bs-target="#ordersModal">
+                📋 Revisar tus órdenes
+                </button>
                 <button id="cart-btn" class="btn-outline-light-custom position-relative" type="button" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas">
                     🛒 Carrito
                     <span id="cartCount" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.7rem;">0</span>
@@ -226,6 +229,21 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal para revisar órdenes -->
+<div class="modal fade" id="ordersModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Mis órdenes</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="ordersListContainer"></div>
+            </div>
+        </div>
+    </div>
+</div>
 
     <div class="modal fade" id="modalTarjeta" tabindex="-1" aria-labelledby="modalTarjetaLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">

@@ -5,6 +5,15 @@ const ORDERS_KEY = 'ug_orders_v1';
 let allPlatillos = [];
 let cart = readCart();
 
+function getGuestId() {
+    let guestId = localStorage.getItem('guest_id');
+    if (!guestId) {
+        guestId = 'guest_' + Date.now() + '_' + Math.random().toString(36).substr(2, 8);
+        localStorage.setItem('guest_id', guestId);
+    }
+    return guestId;
+}
+
 function readOrders() {
     try {
         const data = JSON.parse(localStorage.getItem(ORDERS_KEY));
@@ -15,6 +24,16 @@ function readOrders() {
 }
 
 async function saveOrder(order) {
+     const user = JSON.parse(localStorage.getItem('user'));
+    const isGuest = !user || !user.email;
+    if (isGuest) {
+        const guestId = getGuestId();
+        order.guestId = guestId;
+        order.studentEmail = null;   // para consistencia
+        order.studentName = user?.name || 'Invitado';
+    }
+
+
     const orders = readOrders();
     orders.unshift(order);
     localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
@@ -176,6 +195,136 @@ function renderMenuFiltrado(platillos) {
     });
 }
 
+async function renderOrdersModal() {
+    const user = JSON.parse(localStorage.getItem('user'));
+    const container = document.getElementById('ordersListContainer');
+    if (!container) return;
+
+    // ========== CASO INVITADO (sin email) ==========
+    if (user && !user.email) {
+        const guestId = getGuestId();               // función auxiliar que ya agregaste
+        const allOrders = readOrders();             // obtiene todas las órdenes de localStorage
+        const misOrdenes = allOrders.filter(order => order.guestId === guestId);
+
+        if (misOrdenes.length === 0) {
+            container.innerHTML = '<div class="alert alert-info">Aún no has realizado ninguna orden como invitado.</div>';
+            return;
+        }
+
+        // Ordenar de más reciente a más antigua
+        misOrdenes.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+        let html = '<div class="list-group">';
+        misOrdenes.forEach(order => {
+            const fecha = new Date(order.createdAt).toLocaleString();
+            const itemsCount = order.items.reduce((sum, item) => sum + (item.qty || 1), 0);
+            html += `
+                <div class="list-group-item list-group-item-action flex-column align-items-start mb-2 rounded-3 shadow-sm">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h6 class="mb-1 fw-bold">Orden #${order.id}</h6>
+                        <small class="text-muted">${fecha}</small>
+                    </div>
+                    <p class="mb-1"><strong>Total:</strong> $${order.total.toFixed(2)}</p>
+                    <p class="mb-1"><strong>Estado:</strong> <span class="badge bg-warning text-dark">${order.status || 'pendiente'}</span></p>
+                    <p class="mb-1"><strong>Items:</strong> ${itemsCount} producto(s)</p>
+                    <p class="mb-0 small text-muted"><strong>Nota:</strong> ${order.notes || 'Sin nota'}</p>
+                    <button class="btn btn-sm btn-outline-primary mt-2 toggle-items" data-order-id="${order.id}">Ver productos</button>
+                    <div id="items-${order.id}" class="mt-2 small d-none">
+                        <hr>
+                        <ul class="mb-0">
+                            ${order.items.map(item => `<li>${item.qty || 1} x ${item.name} - $${(item.price * (item.qty || 1)).toFixed(2)}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+            `;
+        });
+        html += '</div>';
+        container.innerHTML = html;
+
+        // Event listeners para los botones "Ver productos"
+        document.querySelectorAll('.toggle-items').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const orderId = btn.getAttribute('data-order-id');
+                const itemsDiv = document.getElementById(`items-${orderId}`);
+                if (itemsDiv) {
+                    itemsDiv.classList.toggle('d-none');
+                    btn.textContent = itemsDiv.classList.contains('d-none') ? 'Ver productos' : 'Ocultar productos';
+                }
+            });
+        });
+        return;   // Salimos aquí, no ejecutar el código de usuarios registrados
+    }
+
+    // ========== CASO USUARIO REGISTRADO (con email) ==========
+    // (código original, tal como lo tenías)
+    if (!user || !user.email) {
+        // Por si acaso no hay user o no hay email (no debería llegar aquí por el return anterior, pero lo dejamos)
+        container.innerHTML = '<p class="text-muted">No se encontró información del usuario.</p>';
+        return;
+    }
+
+    // Mostrar spinner de carga
+    container.innerHTML = '<div class="text-center"><div class="spinner-border text-primary" role="status"></div><p>Cargando tus órdenes...</p></div>';
+
+    try {
+        const respuesta = await fetch('http://localhost:4000/api/orders');
+        if (!respuesta.ok) throw new Error('Error al obtener órdenes');
+        
+        const todasLasOrdenes = await respuesta.json();
+        const misOrdenes = todasLasOrdenes.filter(orden => orden.studentEmail === user.email);
+
+        if (misOrdenes.length === 0) {
+            container.innerHTML = '<div class="alert alert-info">Aún no has realizado ninguna orden.</div>';
+            return;
+        }
+
+        misOrdenes.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+        let html = '<div class="list-group">';
+        misOrdenes.forEach(order => {
+            const fecha = new Date(order.createdAt).toLocaleString();
+            const itemsCount = order.items.reduce((sum, item) => sum + (item.qty || 1), 0);
+            html += `
+                <div class="list-group-item list-group-item-action flex-column align-items-start mb-2 rounded-3 shadow-sm">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h6 class="mb-1 fw-bold">Orden #${order.id}</h6>
+                        <small class="text-muted">${fecha}</small>
+                    </div>
+                    <p class="mb-1"><strong>Total:</strong> $${order.total.toFixed(2)}</p>
+                    <p class="mb-1"><strong>Estado:</strong> <span class="badge bg-warning text-dark">${order.status || 'pendiente'}</span></p>
+                    <p class="mb-1"><strong>Items:</strong> ${itemsCount} producto(s)</p>
+                    <p class="mb-0 small text-muted"><strong>Nota:</strong> ${order.notes || 'Sin nota'}</p>
+                    <button class="btn btn-sm btn-outline-primary mt-2 toggle-items" data-order-id="${order.id}">Ver productos</button>
+                    <div id="items-${order.id}" class="mt-2 small d-none">
+                        <hr>
+                        <ul class="mb-0">
+                            ${order.items.map(item => `<li>${item.qty || 1} x ${item.name} - $${(item.price * (item.qty || 1)).toFixed(2)}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+            `;
+        });
+        html += '</div>';
+        container.innerHTML = html;
+
+        // Event listeners toggle
+        document.querySelectorAll('.toggle-items').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const orderId = btn.getAttribute('data-order-id');
+                const itemsDiv = document.getElementById(`items-${orderId}`);
+                if (itemsDiv) {
+                    itemsDiv.classList.toggle('d-none');
+                    btn.textContent = itemsDiv.classList.contains('d-none') ? 'Ver productos' : 'Ocultar productos';
+                }
+            });
+        });
+
+    } catch (error) {
+        console.error('Error al cargar órdenes:', error);
+        container.innerHTML = '<div class="alert alert-danger">Error al cargar tus órdenes. Intenta de nuevo más tarde.</div>';
+    }
+}
+
 
 document.addEventListener('DOMContentLoaded', () => {
     const user = JSON.parse(localStorage.getItem('user'));
@@ -186,7 +335,10 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.clear();
         window.location.href = 'login.html';
     });
-
+const ordersModal = document.getElementById('ordersModal');
+if (ordersModal) {
+    ordersModal.addEventListener('show.bs.modal', renderOrdersModal);
+}
     
     setupCartEvents();
 
