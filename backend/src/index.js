@@ -28,6 +28,7 @@ app.get('/', (req, res) => {
 });
 
 
+
 // VERIFICACIÓN DE LA BASE DE DATOS
 const checkDatabase = async () => {
     try {

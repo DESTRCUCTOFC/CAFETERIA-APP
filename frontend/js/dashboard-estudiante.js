@@ -108,11 +108,13 @@ async function cargarMenuEstudiante() {
                 <img src="${imagenUrl}" alt="${item.nombre}" class="menu-img">
                 <div class="menu-info">
                     <h3 class="menu-title">${item.nombre} ${etiquetaAgotado}</h3>
+                    <h3 class="menu-title">${item.nombre} ${etiquetaAgotado}</h3>
                     <p class="menu-desc">${item.descripcion || ''}</p>
                     <div class="menu-footer">
                         <span class="badge-categoria">${item.categoria || ''}</span>
                         <span class="menu-price">$${Number(item.precio).toFixed(2)}</span>
                     </div>
+                    ${!estaAgotado ? '<button class="btn btn-primary btn-agregar w-100 mt-2">Agregar al carrito</button>' : ''}    </div>
                     ${!estaAgotado ? '<button class="btn btn-primary btn-agregar w-100 mt-2">Agregar al carrito</button>' : ''}    </div>
             `;
 

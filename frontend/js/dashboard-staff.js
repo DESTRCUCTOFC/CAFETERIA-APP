@@ -122,22 +122,22 @@ async function cargarMenu() {
 
             const fila = document.createElement('tr');
             fila.innerHTML = `
-                <td>${imagenHTML}</td>
-                <td>
-                    <strong>${item.nombre}</strong><br>
-                    <small style="color: #666;">${item.descripcion}</small>
-                </td>
-                <td>${item.categoria}</td>
-                <td>$${Number(item.precio).toFixed(2)}</td>
-                <td style="color: ${item.disponible ? 'green' : 'red'}; font-weight: bold;">
-                    ${item.disponible ? 'Disponible' : 'Agotado'}
-                </td>
-                <td>
-                    <button class="btn btn-outline-secondary btn-sm" onclick="cambiarDisponibilidad('${item.id}', ${!item.disponible})">
-                        Marcar como ${item.disponible ? 'Agotado' : 'Disponible'}
-                    </button>
-                </td>
-            `;
+                    <td>${imagenHTML}</td>
+                    <td>
+                        <strong>${item.nombre}</strong><br>
+                        <small style="color: #666;">${item.descripcion}</small>
+                    </td>
+                    <td>${item.categoria}</td>
+                    <td>$${Number(item.precio).toFixed(2)}</td>
+                    <td style="color: ${item.disponible ? 'green' : 'red'}; font-weight: bold;">
+                        ${item.disponible ? 'Disponible' : 'Agotado'}
+                    </td>
+                    <td>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="cambiarDisponibilidad('${item.id}', ${!item.disponible})">
+                            Marcar como ${item.disponible ? 'Agotado' : 'Disponible'}
+                        </button>
+                    </td>
+                `;
             tbody.appendChild(fila);
         });
     } catch (error) {
