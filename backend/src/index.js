@@ -1,14 +1,15 @@
 import express from 'express';
 import cors from 'cors';
 import 'dotenv/config';
-import { db } from './config/firebase.js'; 
-import authRoutes from './modules/auth/auth.routes.js'; 
-import menuRoutes from './modules/menu/menu.routes.js'; 
+import { db } from './config/firebase.js';
+import authRoutes from './modules/auth/auth.routes.js';
+import menuRoutes from './modules/menu/menu.routes.js';
 import paymentRoutes from './modules/payments/payments.routes.js';
+import orderRoutes from './modules/orders/orders.routes.js'
 const app = express();
 
-app.use(cors());           
-app.use(express.json());   
+app.use(cors());
+app.use(express.json());
 
 app.use('/api/auth', authRoutes);
 
@@ -18,10 +19,10 @@ app.use('/api/payments', paymentRoutes);
 
 // PRUEBA 
 app.get('/', (req, res) => {
-    res.json({ 
+    res.json({
         mensaje: "API Cafetería Uni - Proyecto",
         estado: "Online",
-        estudiante: "Juan Pablo" 
+        estudiante: "Juan Pablo"
     });
 });
 

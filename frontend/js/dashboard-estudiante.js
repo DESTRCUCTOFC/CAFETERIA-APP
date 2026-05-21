@@ -1,6 +1,7 @@
 import { readCart, addToCart, updateQty, removeItem, clearCart, renderCartHTML, cartTotals } from './cart.js';
 
 const API_URL = 'http://localhost:4000/api/menu';
+const ORDERS_URL = 'http://localhost:4000/api/orders';
 const ORDERS_KEY = 'ug_orders_v1';
 let allPlatillos = [];
 let cart = readCart();
@@ -14,11 +15,38 @@ function readOrders() {
     }
 }
 
-function saveOrder(order) {
-    const orders = readOrders();
-    orders.unshift(order);
-    localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
-    return orders;
+async function saveOrder(order) {
+    try {
+        const response = await fetch(ORDERS_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                cliente: order.studentName,
+                mesa: "Para llevar",
+                productos: order.items.map(item => ({
+                    nombre: item.name,
+                    cantidad: item.qty
+                })),
+                total: order.total,
+                paymentIntentId: order.paymentIntentId || null
+            })
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            console.log("@Alejandro->", "Orden guardada con éxito en el servidor", data);
+            return data;
+        } else {
+            const errorData = await response.json();
+            console.error("@Alejandro->", "Error al guardar la orden en el servidor:", errorData);
+            alert("Tu pago se procesó, pero hubo un problema al enviar la orden a la cocina. Por favor avisa al staff.");
+        }
+    } catch (error) {
+        console.error("Error de red al  conectar con el backend:", error);
+        alert("Error de conexión.");
+    }
 }
 
 
@@ -35,7 +63,7 @@ function setupCartEvents() {
         }
     });
 
-    
+
     cartItemsContainer.addEventListener('change', (e) => {
         const input = e.target.closest('[data-qty]');
         if (input) {
@@ -194,27 +222,27 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = 'login.html';
     });
 
-    
+
     setupCartEvents();
 
-    
+
     cargarMenuEstudiante().then(() => {
         const searchInput = document.getElementById('searchInput');
         const sortSelect = document.getElementById('sortSelect');
         if (searchInput) searchInput.addEventListener('input', aplicarFiltros);
         if (sortSelect) sortSelect.addEventListener('change', aplicarFiltros);
-        paintCart(); 
+        paintCart();
     });
 
-    
+
     const clearCartBtn = document.getElementById('clearCartBtn');
     const checkoutBtn = document.getElementById('checkoutBtn');
     if (clearCartBtn) clearCartBtn.onclick = () => { cart = clearCart(); paintCart(); };
 
     // LÓGICA DE PAGOS
-    
+
     const btnEfectivo = document.getElementById('btn-efectivo');
-    const btnTarjeta = document.getElementById('btn-tarjeta'); 
+    const btnTarjeta = document.getElementById('btn-tarjeta');
     const modalTarjetaEl = document.getElementById('modalTarjeta');
     const btnConfirmarTarjeta = document.getElementById('submit-payment');
 
@@ -270,7 +298,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         style: { base: { fontSize: '16px', color: '#32325d', fontFamily: 'Poppins, sans-serif' } }
                     });
                     cardElement.mount('#card-element');
-                    cardElement.on('change', ({error}) => {
+                    cardElement.on('change', ({ error }) => {
                         document.getElementById('card-errors').textContent = error ? error.message : '';
                     });
                 }
@@ -287,7 +315,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!resultado.success) throw new Error(resultado.message);
 
                 clientSecretActual = resultado.clientSecret;
-                btnConfirmarTarjeta.disabled = false; 
+                btnConfirmarTarjeta.disabled = false;
             } catch (error) {
                 console.error('Error:', error);
                 document.getElementById('card-errors').textContent = 'Error al conectar con el servidor. Cierra e intenta de nuevo.';
@@ -303,7 +331,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const { paymentIntent, error } = await stripe.confirmCardPayment(clientSecretActual, {
                 payment_method: {
                     card: cardElement,
-                    billing_details: { name: userData.name || 'Estudiante UG' } 
+                    billing_details: { name: userData.name || 'Estudiante UG' }
                 }
             });
 
@@ -312,7 +340,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 btnConfirmarTarjeta.disabled = false;
                 btnConfirmarTarjeta.textContent = 'Reintentar Pago';
             } else if (paymentIntent.status === 'succeeded') {
-                
+
                 // Creamos la orden de Firebase con la nota de Tarjeta
                 const { total } = cartTotals(cart);
                 const order = {
@@ -333,7 +361,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Ocultamos el cuadro flotante
                 const modalInstancia = bootstrap.Modal.getInstance(modalTarjetaEl);
                 modalInstancia.hide();
-                
+
                 alert('¡PAGO EXITOSO! 💸 Tu orden ya está pagada y lista para prepararse. ¡BUEN DIA !');
                 window.location.reload();
             }
