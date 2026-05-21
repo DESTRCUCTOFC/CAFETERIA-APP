@@ -212,6 +212,10 @@
                 </div>
             </div>
             <div class="d-flex gap-2">
+                <button id="viewOrdersBtn" class="btn-outline-light-custom" type="button" data-bs-toggle="modal"
+                    data-bs-target="#ordersModal">
+                    📋 Revisar tus órdenes
+                </button>
                 <button id="cart-btn" class="btn-outline-light-custom position-relative" type="button"
                     data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas">
                     🛒 Carrito
@@ -234,12 +238,8 @@
             </select>
         </div>
         <h2 class="mb-3">Menú del Día</h2>
-        <div id="menu-container" class="menu-grid">
-
-        </div>
+        <div id="menu-container" class="menu-grid"></div>
     </main>
-
-    <!-- Offcanvas del carrito  -->
 
     <div class="offcanvas offcanvas-end" tabindex="-1" id="cartOffcanvas">
         <div class="offcanvas-header border-bottom">
@@ -268,6 +268,20 @@
         </div>
     </div>
 
+    <div class="modal fade" id="ordersModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Mis órdenes</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="ordersListContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="modal fade" id="modalTarjeta" tabindex="-1" aria-labelledby="modalTarjetaLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content shadow-lg border-0 rounded-4">
@@ -277,13 +291,13 @@
                 </div>
                 <div class="modal-body p-4">
                     <p class="text-muted small mb-3">Ingresa los datos de tu tarjeta. El cobro está procesado de forma
-                        segura por Stripe.</p>
+                        segura a través de Stripe.</p>
 
                     <div id="card-element" class="form-control mb-3 p-3 bg-light border-0 shadow-sm rounded-3"></div>
 
                     <div id="card-errors" class="text-danger small mb-3 text-center fw-semibold" role="alert"></div>
 
-                    <button class="btn btn-primary w-100 fw-bold py-2 rounded-3" id="btn-confirmar-tarjeta">
+                    <button class="btn btn-primary w-100 fw-bold py-2 rounded-3" id="submit-payment">
                         Confirmar Pago Real
                     </button>
                 </div>
@@ -291,33 +305,8 @@
         </div>
     </div>
 
-    <div class="modal fade" id="modalTarjeta" tabindex="-1" aria-labelledby="modalTarjetaLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content shadow-lg border-0 rounded-4">
-                <div class="modal-header bg-light border-bottom-0 rounded-top-4">
-                    <h5 class="modal-title fw-bold text-primary" id="modalTarjetaLabel">Pago Seguro</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body p-4">
-                    <p class="text-muted small mb-3">Ingresa los datos de tu tarjeta. El cobro está procesado de forma
-                        segura atraves Stripe.</p>
-
-                    <div id="card-element" class="form-control mb-3 p-3 bg-light border-0 shadow-sm rounded-3"></div>
-
-                    <div id="card-errors" class="text-danger small mb-3 text-center fw-semibold" role="alert"></div>
-
-                    <button class="btn btn-primary w-100 fw-bold py-2 rounded-3" id="btn-confirmar-tarjeta">
-                        Procesando 🔄...
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module" src="js/dashboard-estudiante.js"></script>
-
     <script src="js/cart.js"></script>
 </body>
 
