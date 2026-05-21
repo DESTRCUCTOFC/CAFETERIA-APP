@@ -23,6 +23,13 @@ function readOrders() {
         return [];
     }
 }
+// antes de que se borre el carrito se guarda la orden para que
+// el invitado pueda visualizarlas
+function saveGuestOrderLocally(order) {
+    const localOrders = readOrders();
+    localOrders.push(order);
+    localStorage.setItem(ORDERS_KEY, JSON.stringify(localOrders));
+}
 
 async function saveOrder(order) {
     try {
@@ -33,6 +40,7 @@ async function saveOrder(order) {
             },
             body: JSON.stringify({
                 cliente: order.studentName,
+                studentEmail: order.studentEmail,
                 mesa: "Para llevar",
                 productos: order.items.map(item => ({
                     nombre: item.name,
@@ -42,6 +50,7 @@ async function saveOrder(order) {
                 paymentIntentId: order.paymentIntentId || null
             })
         });
+
 
         if (response.ok) {
             const data = await response.json();
@@ -207,8 +216,8 @@ async function renderOrdersModal() {
 
     // ========== CASO INVITADO (sin email) ==========
     if (user && !user.email) {
-        const guestId = getGuestId();               // función auxiliar que ya agregaste
-        const allOrders = readOrders();             // obtiene todas las órdenes de localStorage
+        const guestId = getGuestId();
+        const allOrders = readOrders();
         const misOrdenes = allOrders.filter(order => order.guestId === guestId);
 
         if (misOrdenes.length === 0) {
@@ -216,13 +225,13 @@ async function renderOrdersModal() {
             return;
         }
 
-        // Ordenar de más reciente a más antigua
         misOrdenes.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
         let html = '<div class="list-group">';
         misOrdenes.forEach(order => {
             const fecha = new Date(order.createdAt).toLocaleString();
-            const itemsCount = order.items.reduce((sum, item) => sum + (item.qty || 1), 0);
+            const items = Array.isArray(order.items) ? order.items : [];
+            const itemsCount = items.reduce((sum, item) => sum + (item.qty || 1), 0);
             html += `
                 <div class="list-group-item list-group-item-action flex-column align-items-start mb-2 rounded-3 shadow-sm">
                     <div class="d-flex w-100 justify-content-between">
@@ -237,7 +246,7 @@ async function renderOrdersModal() {
                     <div id="items-${order.id}" class="mt-2 small d-none">
                         <hr>
                         <ul class="mb-0">
-                            ${order.items.map(item => `<li>${item.qty || 1} x ${item.name} - $${(item.price * (item.qty || 1)).toFixed(2)}</li>`).join('')}
+                            ${items.map(item => `<li>${item.qty || 1} x ${item.name || 'Producto'} - $${((item.price || 0) * (item.qty || 1)).toFixed(2)}</li>`).join('')}
                         </ul>
                     </div>
                 </div>
@@ -257,13 +266,11 @@ async function renderOrdersModal() {
                 }
             });
         });
-        return;   // Salimos aquí, no ejecutar el código de usuarios registrados
+        return;
     }
 
     // ========== CASO USUARIO REGISTRADO (con email) ==========
-    // (código original, tal como lo tenías)
     if (!user || !user.email) {
-        // Por si acaso no hay user o no hay email (no debería llegar aquí por el return anterior, pero lo dejamos)
         container.innerHTML = '<p class="text-muted">No se encontró información del usuario.</p>';
         return;
     }
@@ -288,14 +295,29 @@ async function renderOrdersModal() {
         let html = '<div class="list-group">';
         misOrdenes.forEach(order => {
             const fecha = new Date(order.createdAt).toLocaleString();
-            const itemsCount = order.items.reduce((sum, item) => sum + (item.qty || 1), 0);
+
+            // 🔴 CORRECCIÓN AQUÍ: Validamos y normalizamos la estructura de productos vengan como vengan de la Base de Datos
+            let items = [];
+            if (Array.isArray(order.items)) {
+                items = order.items;
+            } else if (Array.isArray(order.productos)) {
+                // Mapeo por si la base de datos usa los nombres en español creados en saveOrder()
+                items = order.productos.map(p => ({
+                    name: p.nombre || 'Producto',
+                    qty: p.cantidad || 1,
+                    price: p.precio || 0
+                }));
+            }
+
+            const itemsCount = items.reduce((sum, item) => sum + (item.qty || 1), 0);
+
             html += `
                 <div class="list-group-item list-group-item-action flex-column align-items-start mb-2 rounded-3 shadow-sm">
                     <div class="d-flex w-100 justify-content-between">
-                        <h6 class="mb-1 fw-bold">Orden #${order.id}</h6>
+                        <h6 class="mb-1 fw-bold">Orden #${order.id || order._id || 'S/N'}</h6>
                         <small class="text-muted">${fecha}</small>
                     </div>
-                    <p class="mb-1"><strong>Total:</strong> $${order.total.toFixed(2)}</p>
+                    <p class="mb-1"><strong>Total:</strong> $${Number(order.total || 0).toFixed(2)}</p>
                     <p class="mb-1"><strong>Estado:</strong> <span class="badge bg-warning text-dark">${order.status || 'pendiente'}</span></p>
                     <p class="mb-1"><strong>Items:</strong> ${itemsCount} producto(s)</p>
                     <p class="mb-0 small text-muted"><strong>Nota:</strong> ${order.notes || 'Sin nota'}</p>
@@ -303,7 +325,11 @@ async function renderOrdersModal() {
                     <div id="items-${order.id}" class="mt-2 small d-none">
                         <hr>
                         <ul class="mb-0">
-                            ${order.items.map(item => `<li>${item.qty || 1} x ${item.name} - $${(item.price * (item.qty || 1)).toFixed(2)}</li>`).join('')}
+                        ${items.map(item => {
+                const precioCalculado = (item.price || 0) * (item.qty || 1);
+                const textoPrecio = precioCalculado > 0 ? `- $${precioCalculado.toFixed(2)}` : '';
+                return `<li>${item.qty || 1} x ${item.name || 'Producto'} ${textoPrecio}</li>`;
+            }).join('')}    
                         </ul>
                     </div>
                 </div>
@@ -405,15 +431,14 @@ document.addEventListener('DOMContentLoaded', () => {
         modalTarjetaEl.addEventListener('show.bs.modal', async (event) => {
             const { total } = cartTotals(cart);
             if (total <= 0) {
-                event.preventDefault(); // Detiene el modal si el carrito está vacío
+                event.preventDefault();
                 return alert('Carrito vacío. Agrega comida antes de pagar con tarjeta.');
             }
 
             btnConfirmarTarjeta.textContent = `Confirmar Pago de $${total.toFixed(2)}`;
-            btnConfirmarTarjeta.disabled = true; // Bloqueado mientras pedimos permiso al backend
+            btnConfirmarTarjeta.disabled = true;
 
             try {
-                // Pintamos la tarjeta de Stripe si no existe
                 if (!elements) {
                     elements = stripe.elements();
                     cardElement = elements.create('card', {
@@ -425,7 +450,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
                 }
 
-                // Pedimos el token al backend de Express
                 const userData = JSON.parse(localStorage.getItem('user')) || {};
                 const respuesta = await fetch('http://localhost:4000/api/payments/create-intent', {
                     method: 'POST',
@@ -444,7 +468,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Cuando le dan clic en Confirmar dentro del cuadrito flotante
         btnConfirmarTarjeta.addEventListener('click', async () => {
             btnConfirmarTarjeta.disabled = true;
             btnConfirmarTarjeta.textContent = 'Procesando pago... ⏳';
@@ -467,6 +490,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     id: `ORD-${Date.now().toString().slice(-6)}`,
                     studentName: userData.name || 'Invitado',
                     studentEmail: userData.email || '',
+                    guestId: !userData.email ? getGuestId() : null, // Mapeo de guestId explícito
                     createdAt: new Date().toISOString(),
                     status: 'pendiente',
                     items: cart.map(item => ({ ...item, price: Number(item.price) })),
@@ -477,25 +501,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const servidorGuardado = await saveOrder(order);
                 if (servidorGuardado) {
+                    if (!userData.email) saveGuestOrderLocally(order);
                     cart = clearCart();
                     paintCart();
 
                     const modalInstancia = bootstrap.Modal.getInstance(modalTarjetaEl);
-                    if (modalInstancia) modalInstancia.hide();
 
-                    alert('¡PAGO EXITOSO! 💸 Tu orden ya está en la cocina.');
-                    window.location.reload();
-                } else {
-                    btnConfirmarTarjeta.disabled = false;
-                    btnConfirmarTarjeta.textContent = 'Reintentar Enviar a Cocina';
+                    if (modalInstancia) {
+                        // Escuchamos el evento de que el modal terminó de cerrarse por completo
+                        modalTarjetaEl.addEventListener('hidden.bs.modal', () => {
+                            alert('¡PAGO EXITOSO! 💸 Tu orden ya está en la cocina.');
+                            window.location.reload();
+                        }, { once: true }); // { once: true } asegura que el evento se destruya tras usarse una vez
+
+                        modalInstancia.hide();
+                    } else {
+                        // Por si acaso el modal no existía como instancia, recargamos directo
+                        alert('¡PAGO EXITOSO! 💸 Tu orden ya está en la cocina.');
+                        window.location.reload();
+                    }
                 }
-
-                // ⚠️ ERROR: Esto se ejecuta SIEMPRE, incluso si "servidorGuardado" falla o está procesando
-                const modalInstancia = bootstrap.Modal.getInstance(modalTarjetaEl);
-                modalInstancia.hide();
-
-                alert('¡PAGO EXITOSO! 💸 Tu orden ya está en la cocina.');
-                window.location.reload();
             }
         });
     }

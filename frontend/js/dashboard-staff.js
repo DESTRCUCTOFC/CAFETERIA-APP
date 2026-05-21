@@ -45,7 +45,7 @@ async function cargarOrdenes() {
         tbody.innerHTML = '';
 
         if (ordenes.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">No hay órdenes pendientes ☕</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">No hay órdenes pendientes ☕</td></tr>`;
             return;
         }
 
@@ -56,26 +56,28 @@ async function cargarOrdenes() {
 
             if (arregloProductos && arregloProductos.length > 0) {
                 listaProductos = arregloProductos.map(p => {
-                    // Detecta si el nombre viene como .nombre (nuevo) o .name (viejo)
                     const nombreProd = p.nombre || p.name || 'Producto';
-                    // Detecta si la cantidad viene como .cantidad (nuevo) o .qty (viejo)
                     const cantidadProd = p.cantidad || p.qty || 1;
-
                     return `${nombreProd} (${cantidadProd})`;
                 }).join(', ');
             }
 
-            // 2. OBTENER EL NOMBRE DEL CLIENTE (Soporta 'cliente' o 'studentName')
+            // 2. OBTENER EL NOMBRE DEL CLIENTE
             const nombreCliente = orden.cliente || orden.studentName || 'Invitado';
 
-            // 3. OBTENER EL ESTADO (Soporta 'status' o 'estado')
+            // 3. OBTENER EL ESTADO
             const estadoActual = orden.status || orden.estado || 'pendiente';
 
-            // Configuración de colores de los badges de Bootstrap
+            // Configuración de colores de los badges de Bootstrap para el estado
             let colorBadge = 'bg-secondary';
             if (estadoActual === 'pendiente') colorBadge = 'bg-warning text-dark';
             if (estadoActual === 'preparacion' || estadoActual === 'preparando') colorBadge = 'bg-primary';
             if (estadoActual === 'lista' || estadoActual === 'listo') colorBadge = 'bg-success';
+
+            // 🔴 NUEVA LÓGICA: Validar método y estado del pago de forma estricta
+            const esTarjeta = orden.paymentIntentId !== null && orden.paymentIntentId !== undefined && orden.paymentIntentId !== '';
+            const pagoTexto = esTarjeta ? '🟢 Tarjeta (Stripe)' : '🟡 Efectivo (Cobrar)';
+            const pagoClase = esTarjeta ? 'bg-success' : 'bg-warning text-dark';
 
             const selectEstado = `
                 <select class="form-select form-select-sm" onchange="cambiarEstadoOrden('${orden.id}', this.value)">
@@ -87,12 +89,15 @@ async function cargarOrdenes() {
 
             const fila = document.createElement('tr');
 
-            // 4. RENDERIZADO EN LAS 6 COLUMNAS CORRESPONDIENTES DEL HTML
+            // 4. RENDERIZADO (Agregamos la columna del estado del pago antes del estado de preparación)
             fila.innerHTML = `
                 <td><strong>#${orden.id ? orden.id.slice(-4) : '????'}</strong></td>
                 <td>${nombreCliente}</td>
                 <td>${listaProductos}</td>
                 <td><strong>$${Number(orden.total || 0).toFixed(2)}</strong></td>
+                <td>
+                    <span class="badge ${pagoClase}">${pagoTexto}</span>
+                </td>
                 <td>
                     <span class="badge ${colorBadge} text-capitalize">${estadoActual}</span>
                 </td>
