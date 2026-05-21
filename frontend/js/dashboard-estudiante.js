@@ -36,20 +36,18 @@ async function saveOrder(order) {
 
         if (response.ok) {
             const data = await response.json();
-            console.log("@Alejandro->", "Orden guardada con éxito en el servidor", data);
+            console.log("@Alejandro -> Orden guardada con éxito en el servidor", data);
             return data;
         } else {
             const errorData = await response.json();
-            console.error("@Alejandro->", "Error al guardar la orden en el servidor:", errorData);
-            alert("Tu pago se procesó, pero hubo un problema al enviar la orden a la cocina. Por favor avisa al staff.");
+            console.error("Error devuelto por el servidor al guardar orden:", errorData);
+            return false;
         }
     } catch (error) {
-        console.error("Error de red al  conectar con el backend:", error);
-        alert("Error de conexión.");
+        console.error("Error de conexión al guardar la orden:", error);
+        return false;
     }
 }
-
-
 function setupCartEvents() {
     const cartItemsContainer = document.getElementById('cartItems');
     if (!cartItemsContainer) return;
@@ -76,8 +74,6 @@ function setupCartEvents() {
         }
     });
 }
-
-
 function paintCart() {
     const cartItemsDiv = document.getElementById('cartItems');
     const cartEmptyDiv = document.getElementById('cartEmpty');
@@ -87,8 +83,6 @@ function paintCart() {
         renderCartHTML(cartItemsDiv, cartEmptyDiv, cartTotalSpan, cartCountSpan, cart);
     }
 }
-
-
 async function cargarMenuEstudiante() {
     try {
         const respuesta = await fetch(API_URL);
@@ -110,35 +104,24 @@ async function cargarMenuEstudiante() {
 
             const tarjeta = document.createElement('div');
             tarjeta.className = claseTarjeta;
-            if (!estaAgotado) {
-                tarjeta.style.cursor = 'pointer';
-                tarjeta.onclick = () => {
-                    cart = addToCart({
-                        id: item.id,
-                        name: item.nombre,
-                        price: item.precio,
-                        imageUrl: item.imagenUrl
-                    });
-                    paintCart();
-                };
-            } else {
-                tarjeta.style.cursor = 'not-allowed';
-            }
-
             tarjeta.innerHTML = `
                 <img src="${imagenUrl}" alt="${item.nombre}" class="menu-img">
                 <div class="menu-info">
-                    <h3 class="menu-title">
-                        ${item.nombre} 
-                        ${etiquetaAgotado}
-                    </h3>
+                    <h3 class="menu-title">${item.nombre} ${etiquetaAgotado}</h3>
                     <p class="menu-desc">${item.descripcion || ''}</p>
                     <div class="menu-footer">
                         <span class="badge-categoria">${item.categoria || ''}</span>
                         <span class="menu-price">$${Number(item.precio).toFixed(2)}</span>
                     </div>
-                </div>
+                    ${!estaAgotado ? '<button class="btn btn-primary btn-agregar w-100 mt-2">Agregar al carrito</button>' : ''}    </div>
             `;
+
+            if (!estaAgotado) {
+                tarjeta.querySelector('.btn-agregar').onclick = () => {
+                    cart = addToCart({ id: item.id, name: item.nombre, price: item.precio, imageUrl: item.imagenUrl });
+                    paintCart();
+                };
+            }
             container.appendChild(tarjeta);
         });
     } catch (error) {
@@ -146,8 +129,6 @@ async function cargarMenuEstudiante() {
         document.getElementById('menu-container').innerHTML = '<p style="color:red;">Error al cargar el menú. Asegúrate de que el servidor esté encendido.</p>';
     }
 }
-
-
 function aplicarFiltros() {
     if (!allPlatillos.length) return;
     const searchTerm = (document.getElementById('searchInput')?.value || '').toLowerCase().trim();
@@ -164,7 +145,6 @@ function aplicarFiltros() {
     else if (sortBy === 'price_desc') filtrados.sort((a, b) => b.precio - a.precio);
     renderMenuFiltrado(filtrados);
 }
-
 function renderMenuFiltrado(platillos) {
     const container = document.getElementById('menu-container');
     container.innerHTML = '';
@@ -210,8 +190,6 @@ function renderMenuFiltrado(platillos) {
         container.appendChild(tarjeta);
     });
 }
-
-
 document.addEventListener('DOMContentLoaded', () => {
     const user = JSON.parse(localStorage.getItem('user'));
     if (!user) return window.location.href = 'login.html';
@@ -248,7 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // PAGO EN EFECTIVO ---
     if (btnEfectivo) {
-        btnEfectivo.addEventListener('click', () => {
+        btnEfectivo.addEventListener('click', async () => {
             const { total } = cartTotals(cart);
             if (total <= 0) {
                 alert('Carrito vacío. Agrega comida a tu orden.');
@@ -267,7 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 notes: '💵 PAGO EN EFECTIVO (Cobrar en caja)'
             };
 
-            saveOrder(order);
+            await saveOrder(order);
             cart = clearCart();
             paintCart();
             alert('¡Orden registrada! Pasa a la caja de la cafetería a realizar tu pago en efectivo ¡BUEN DIA !.');
@@ -340,8 +318,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 btnConfirmarTarjeta.disabled = false;
                 btnConfirmarTarjeta.textContent = 'Reintentar Pago';
             } else if (paymentIntent.status === 'succeeded') {
-
-                // Creamos la orden de Firebase con la nota de Tarjeta
                 const { total } = cartTotals(cart);
                 const order = {
                     id: `ORD-${Date.now().toString().slice(-6)}`,
@@ -351,18 +327,30 @@ document.addEventListener('DOMContentLoaded', () => {
                     status: 'pendiente',
                     items: cart.map(item => ({ ...item, price: Number(item.price) })),
                     total: Number(total.toFixed(2)),
+                    paymentIntentId: paymentIntent.id,
                     notes: '💳 PAGADO CON TARJETA (Stripe)'
                 };
 
-                saveOrder(order);
-                cart = clearCart();
-                paintCart();
+                const servidorGuardado = await saveOrder(order);
+                if (servidorGuardado) {
+                    cart = clearCart();
+                    paintCart();
 
-                // Ocultamos el cuadro flotante
+                    const modalInstancia = bootstrap.Modal.getInstance(modalTarjetaEl);
+                    if (modalInstancia) modalInstancia.hide();
+
+                    alert('¡PAGO EXITOSO! 💸 Tu orden ya está en la cocina.');
+                    window.location.reload();
+                } else {
+                    btnConfirmarTarjeta.disabled = false;
+                    btnConfirmarTarjeta.textContent = 'Reintentar Enviar a Cocina';
+                }
+
+                // ⚠️ ERROR: Esto se ejecuta SIEMPRE, incluso si "servidorGuardado" falla o está procesando
                 const modalInstancia = bootstrap.Modal.getInstance(modalTarjetaEl);
                 modalInstancia.hide();
 
-                alert('¡PAGO EXITOSO! 💸 Tu orden ya está pagada y lista para prepararse. ¡BUEN DIA !');
+                alert('¡PAGO EXITOSO! 💸 Tu orden ya está en la cocina.');
                 window.location.reload();
             }
         });

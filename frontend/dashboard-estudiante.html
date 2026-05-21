@@ -1,31 +1,33 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <title>Menú Estudiantil - Cafetería UG</title>
-    
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" 
-            rel="stylesheet" 
-            integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" 
-            crossorigin="anonymous">
-    
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+
     <link rel="stylesheet" href="CSS/styles.css">
-    
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <script src="https://js.stripe.com/v3/"></script>
     <style>
-        
         body {
             font-family: 'Poppins', sans-serif;
             background-color: var(--ug-bg, #f1f5f9);
             margin: 0;
             padding: 0;
         }
+
         .page-header {
             background: linear-gradient(90deg, var(--ug-primary), var(--ug-primary-dark));
             color: white;
             padding: 1rem 0.75rem;
-            box-shadow: 0 4px 18px rgba(10,43,62,0.08);
+            box-shadow: 0 4px 18px rgba(10, 43, 62, 0.08);
         }
+
         .header-inner {
             display: flex;
             gap: 1rem;
@@ -35,95 +37,113 @@
             margin: 0 auto;
             flex-wrap: wrap;
         }
+
         .brand-area {
             display: flex;
             align-items: center;
             gap: 0.75rem;
         }
+
         .brand-badge-sm {
             width: 48px;
             height: 48px;
-            background: rgba(255,255,255,0.15);
+            background: rgba(255, 255, 255, 0.15);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
         }
+
         .brand-badge-sm img {
             width: 32px;
             height: 32px;
             object-fit: contain;
         }
+
         .page-title {
             margin: 0;
             font-size: 1.25rem;
             font-weight: 600;
         }
+
         .user-greeting {
             margin: 0;
-            color: rgba(255,255,255,0.9);
+            color: rgba(255, 255, 255, 0.9);
             font-size: 0.85rem;
         }
+
         .btn-outline-light-custom {
             background: transparent;
-            border: 1px solid rgba(255,255,255,0.5);
+            border: 1px solid rgba(255, 255, 255, 0.5);
             color: white;
             border-radius: 2rem;
             padding: 0.4rem 1rem;
             font-weight: 500;
             transition: 0.2s;
         }
+
         .btn-outline-light-custom:hover {
-            background: rgba(255,255,255,0.2);
+            background: rgba(255, 255, 255, 0.2);
         }
+
         .content-container {
             max-width: 1280px;
             margin: 1.5rem auto;
             padding: 0 1rem;
         }
+
         .filters-bar {
             display: flex;
             gap: 1rem;
             margin-bottom: 1.5rem;
             flex-wrap: wrap;
         }
-        .filters-bar input, .filters-bar select {
+
+        .filters-bar input,
+        .filters-bar select {
             flex: 1;
             min-width: 180px;
         }
+
         .menu-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 1.75rem;
         }
+
         .menu-card {
             background: var(--ug-card);
             border-radius: 1.25rem;
             overflow: hidden;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
             transition: transform 0.2s;
             border: 1px solid var(--ug-border);
         }
+
         .menu-card:hover {
             transform: translateY(-4px);
         }
+
         .menu-img {
             width: 100%;
             height: 200px;
             object-fit: cover;
         }
+
         .menu-info {
             padding: 1.25rem;
             display: flex;
             flex-direction: column;
         }
+
         .menu-title {
             font-weight: 700;
             font-size: 1.2rem;
             margin: 0 0 0.5rem;
         }
+
         .badge-categoria {
-            background: rgba(10,43,62,0.1);
+            background: rgba(10, 43, 62, 0.1);
             color: var(--ug-primary);
             padding: 0.25rem 0.75rem;
             border-radius: 2rem;
@@ -132,26 +152,31 @@
             width: fit-content;
             margin-bottom: 0.75rem;
         }
+
         .menu-desc {
             color: var(--ug-muted);
             font-size: 0.85rem;
             margin-bottom: 1rem;
             flex-grow: 1;
         }
+
         .menu-footer {
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
+
         .menu-price {
             font-weight: 700;
             color: #2c7da0;
             font-size: 1.3rem;
         }
+
         .agotado {
             opacity: 0.7;
             filter: grayscale(0.2);
         }
+
         .badge-agotado {
             background: #e74c3c;
             color: white;
@@ -159,12 +184,21 @@
             border-radius: 2rem;
             font-size: 0.7rem;
         }
+
         @media (max-width: 768px) {
-            .header-inner { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
-            .filters-bar { flex-direction: column; }
+            .header-inner {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+
+            .filters-bar {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
+
 <body>
     <header class="page-header">
         <div class="header-inner">
@@ -178,9 +212,12 @@
                 </div>
             </div>
             <div class="d-flex gap-2">
-                <button id="cart-btn" class="btn-outline-light-custom position-relative" type="button" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas">
+                <button id="cart-btn" class="btn-outline-light-custom position-relative" type="button"
+                    data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas">
                     🛒 Carrito
-                    <span id="cartCount" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.7rem;">0</span>
+                    <span id="cartCount"
+                        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                        style="font-size: 0.7rem;">0</span>
                 </button>
                 <button id="logout-btn" class="btn-outline-light-custom">Cerrar sesión</button>
             </div>
@@ -201,7 +238,7 @@
     </main>
 
     <!-- Offcanvas del carrito  -->
-    
+
     <div class="offcanvas offcanvas-end" tabindex="-1" id="cartOffcanvas">
         <div class="offcanvas-header border-bottom">
             <h5 class="offcanvas-title">Tu Orden</h5>
@@ -216,10 +253,12 @@
                     <span class="fw-bold" id="cartTotal">$0</span>
                 </div>
 
-                <button class="btn btn-primary w-100 mt-2 d-flex justify-content-center align-items-center gap-2" id="btn-tarjeta" data-bs-toggle="modal" data-bs-target="#modalTarjeta">
+                <button class="btn btn-primary w-100 mt-2 d-flex justify-content-center align-items-center gap-2"
+                    id="btn-tarjeta" data-bs-toggle="modal" data-bs-target="#modalTarjeta">
                     💳 Pagar con Tarjeta
                 </button>
-                <button class="btn btn-success w-100 mt-2 d-flex justify-content-center align-items-center gap-2" id="btn-efectivo">
+                <button class="btn btn-success w-100 mt-2 d-flex justify-content-center align-items-center gap-2"
+                    id="btn-efectivo">
                     💵 Pagar en Efectivo
                 </button>
                 <button class="btn btn-outline-secondary w-100 mt-2" id="clearCartBtn">Borrar orden</button>
@@ -235,13 +274,14 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
-                    <p class="text-muted small mb-3">Ingresa los datos de tu tarjeta. El cobro está procesado de forma segura por Stripe.</p>
-                    
+                    <p class="text-muted small mb-3">Ingresa los datos de tu tarjeta. El cobro está procesado de forma
+                        segura por Stripe.</p>
+
                     <div id="card-element" class="form-control mb-3 p-3 bg-light border-0 shadow-sm rounded-3"></div>
-                    
+
                     <div id="card-errors" class="text-danger small mb-3 text-center fw-semibold" role="alert"></div>
-                    
-                    <button class="btn btn-primary w-100 fw-bold py-2 rounded-3" id="submit-payment">
+
+                    <button class="btn btn-primary w-100 fw-bold py-2 rounded-3" id="btn-confirmar-tarjeta">
                         Confirmar Pago Real
                     </button>
                 </div>
@@ -257,13 +297,14 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
-                    <p class="text-muted small mb-3">Ingresa los datos de tu tarjeta. El cobro está procesado de forma segura atraves  Stripe.</p>
-                    
+                    <p class="text-muted small mb-3">Ingresa los datos de tu tarjeta. El cobro está procesado de forma
+                        segura atraves Stripe.</p>
+
                     <div id="card-element" class="form-control mb-3 p-3 bg-light border-0 shadow-sm rounded-3"></div>
-                    
+
                     <div id="card-errors" class="text-danger small mb-3 text-center fw-semibold" role="alert"></div>
-                    
-                    <button class="btn btn-primary w-100 fw-bold py-2 rounded-3" id="submit-payment">
+
+                    <button class="btn btn-primary w-100 fw-bold py-2 rounded-3" id="btn-confirmar-tarjeta">
                         Procesando 🔄...
                     </button>
                 </div>
@@ -271,13 +312,11 @@
         </div>
     </div>
 
-    
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <script type="module" src="js/dashboard-estudiante.js"></script>
 
-    <script src="https://js.stripe.com/v3/"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module" src="js/dashboard-estudiante.js"></script>
 
     <script src="js/cart.js"></script>
 </body>
+
 </html>

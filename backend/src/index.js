@@ -16,6 +16,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/menu', menuRoutes);
 
 app.use('/api/payments', paymentRoutes);
+app.use('/api/orders', orderRoutes);
 
 // PRUEBA 
 app.get('/', (req, res) => {
@@ -25,6 +26,7 @@ app.get('/', (req, res) => {
         estudiante: "Juan Pablo"
     });
 });
+
 
 // VERIFICACIÓN DE LA BASE DE DATOS
 const checkDatabase = async () => {
