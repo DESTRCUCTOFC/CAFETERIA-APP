@@ -2,7 +2,7 @@ import { db } from '../../config/firebase.js';
 import bcrypt from 'bcrypt';
 
 // 1. Correos autorizados para Staff (JP y AJ)
-const STAFF_EMAILS = ['jp@uni.edu', 'aj@uni.edu'];
+const STAFF_EMAILS = ['jp@uni.edu', 'aj@uni.edu','ale@uni.edu'];
 
 export const login = async (req, res) => {
     try {

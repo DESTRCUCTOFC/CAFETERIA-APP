@@ -1,0 +1,2 @@
+- npm install cloudinary multer
+-- es necesaro instalar cloudinaru 

@@ -1,25 +1,33 @@
 import express from 'express';
 import cors from 'cors';
 import 'dotenv/config';
-import { db } from './config/firebase.js'; 
-import authRoutes from './modules/auth/auth.routes.js'; 
-
+import { db } from './config/firebase.js';
+import authRoutes from './modules/auth/auth.routes.js';
+import menuRoutes from './modules/menu/menu.routes.js';
+import paymentRoutes from './modules/payments/payments.routes.js';
+import orderRoutes from './modules/orders/orders.routes.js'
 const app = express();
 
-app.use(cors());           
-app.use(express.json());   
+app.use(cors());
+app.use(express.json());
 
-// CONECTA LAS RUTAS CON EL PREFIJO /api/auth
 app.use('/api/auth', authRoutes);
+
+app.use('/api/menu', menuRoutes);
+
+app.use('/api/payments', paymentRoutes);
+app.use('/api/orders', orderRoutes);
 
 // PRUEBA 
 app.get('/', (req, res) => {
-    res.json({ 
+    res.json({
         mensaje: "API Cafetería Uni - Proyecto",
         estado: "Online",
-        estudiante: "Juan Pablo" 
+        estudiante: "Juan Pablo"
     });
 });
+
+
 
 // VERIFICACIÓN DE LA BASE DE DATOS
 const checkDatabase = async () => {
@@ -34,7 +42,7 @@ const checkDatabase = async () => {
 checkDatabase();
 
 // ENCENDIDO DEL SERVIDOR
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
     console.log(`🚀 Servidor corriendo en: http://localhost:${PORT}`);
 });
