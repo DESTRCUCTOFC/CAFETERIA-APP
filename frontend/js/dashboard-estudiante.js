@@ -30,42 +30,50 @@ function saveGuestOrderLocally(order) {
     localOrders.push(order);
     localStorage.setItem(ORDERS_KEY, JSON.stringify(localOrders));
 }
-
+// ===================== FUNCIÓN PRINCIPAL saveOrder =====================
+/**
+ * Guarda una orden localmente y la envía al servidor.
+ * @param {Object} order - Objeto orden con campos: id, studentName, studentEmail, items, total, notes, etc.
+ * @returns {Array} - El arreglo actualizado de órdenes en localStorage.
+ */
 async function saveOrder(order) {
-    try {
-        const response = await fetch(ORDERS_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                cliente: order.studentName,
-                studentEmail: order.studentEmail,
-                mesa: "Para llevar",
-                productos: order.items.map(item => ({
-                    nombre: item.name,
-                    cantidad: item.qty
-                })),
-                total: order.total,
-                paymentIntentId: order.paymentIntentId || null
-            })
-        });
+    const user = JSON.parse(localStorage.getItem('user'));
+    const isGuest = !user || !user.email;
 
+    // Si es invitado, asignar guestId y limpiar email
+    if (isGuest) {
+        order.guestId = getGuestId();
+        order.studentEmail = null;          // maybe ponerle un  'invitado@example.com'
+        order.studentName = user?.name || 'Invitado';
+    }
+
+    // 1. Guardado local inmediato (para que el usuario vea su orden)
+    const orders = readOrders();
+    orders.unshift(order);                  // las más recientes al inicio
+    localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
+
+    // 2. Envío al servidor (fire-and-forget, pero con log de errores)
+    try {
+        const response = await fetch('http://localhost:4000/api/orders', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(order)     // envía el mismo objeto (tu backend acepta cualquier JSON)
+        });
 
         if (response.ok) {
             const data = await response.json();
-            console.log("@Alejandro -> Orden guardada con éxito en el servidor", data);
-            return data;
+            console.log('✅ Orden guardada en el servidor. ID Firebase:', data.id);
         } else {
-            const errorData = await response.json();
-            console.error("Error devuelto por el servidor al guardar orden:", errorData);
-            return false;
+            console.error('❌ Error del servidor al guardar orden:', response.status, await response.text());
         }
     } catch (error) {
-        console.error("Error de conexión al guardar la orden:", error);
-        return false;
+        console.error('❌ Error de conexión al enviar orden al servidor:', error);
     }
+
+    return orders;
 }
+
+
 function setupCartEvents() {
     const cartItemsContainer = document.getElementById('cartItems');
     if (!cartItemsContainer) return;
