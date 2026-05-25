@@ -73,6 +73,7 @@ async function cargarOrdenes() {
             if (estadoActual === 'pendiente') colorBadge = 'bg-warning text-dark';
             if (estadoActual === 'preparacion' || estadoActual === 'preparando') colorBadge = 'bg-primary';
             if (estadoActual === 'lista' || estadoActual === 'listo') colorBadge = 'bg-success';
+            if (estadoActual === 'recogido') colorBadge = 'bg-info';
 
             // 🔴 NUEVA LÓGICA: Validar método y estado del pago de forma estricta
             const esTarjeta = orden.paymentIntentId !== null && orden.paymentIntentId !== undefined && orden.paymentIntentId !== '';
@@ -84,6 +85,7 @@ async function cargarOrdenes() {
                     <option value="pendiente" ${estadoActual === 'pendiente' ? 'selected' : ''}>Pendiente</option>
                     <option value="preparacion" ${estadoActual === 'preparacion' || estadoActual === 'preparando' ? 'selected' : ''}>En preparación</option>
                     <option value="lista" ${estadoActual === 'lista' || estadoActual === 'listo' ? 'selected' : ''}>Lista</option>
+                    <option value="recogido" ${estadoActual === 'recogido' ? 'selected' : ''}>Recogido</option>
                 </select>
             `;
 
@@ -207,13 +209,32 @@ window.cambiarDisponibilidad = async function (id, nuevoEstado) {
 };
 window.cambiarEstadoOrden = async function (id, nuevoEstado) {
     try {
-        const respuesta = await fetch(`${ORDERS_URL}/${id}/estado`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ estado: nuevoEstado })
-        });
-        if (respuesta.ok) {
-            cargarOrdenes(); // Refresca la lista de comandos automáticamente
+        // Si el estado es "recogido", eliminamos la orden para todos
+        if (nuevoEstado === 'recogido') {
+            const confirmacion = confirm('¿Está seguro que desea eliminar esta orden? Se borrará para el staff y para el estudiante.');
+            if (!confirmacion) return;
+
+            const respuesta = await fetch(`${ORDERS_URL}/${id}`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            if (respuesta.ok) {
+                cargarOrdenes(); // Refresca la lista de comandos automáticamente
+                alert('✅ Orden eliminada exitosamente');
+            } else {
+                alert('Error al eliminar la orden');
+            }
+        } else {
+            // Para otros estados, solo actualizar lo que corresponde
+            const respuesta = await fetch(`${ORDERS_URL}/${id}/estado`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ estado: nuevoEstado })
+            });
+            if (respuesta.ok) {
+                cargarOrdenes(); 
+            }
         }
     } catch (error) {
         console.error("Error al actualizar el estado de la orden:", error);

@@ -240,6 +240,15 @@ async function renderOrdersModal() {
             const fecha = new Date(order.createdAt).toLocaleString();
             const items = Array.isArray(order.items) ? order.items : [];
             const itemsCount = items.reduce((sum, item) => sum + (item.qty || 1), 0);
+            
+           
+            const estadoActual = order.status || 'pendiente';
+            let colorBadge = 'bg-secondary';
+            if (estadoActual === 'pendiente') colorBadge = 'bg-warning text-dark';
+            if (estadoActual === 'preparacion' || estadoActual === 'preparando') colorBadge = 'bg-primary';
+            if (estadoActual === 'lista' || estadoActual === 'listo') colorBadge = 'bg-success';
+            if (estadoActual === 'recogido') colorBadge = 'bg-info';
+            
             html += `
                 <div class="list-group-item list-group-item-action flex-column align-items-start mb-2 rounded-3 shadow-sm">
                     <div class="d-flex w-100 justify-content-between">
@@ -247,7 +256,7 @@ async function renderOrdersModal() {
                         <small class="text-muted">${fecha}</small>
                     </div>
                     <p class="mb-1"><strong>Total:</strong> $${order.total.toFixed(2)}</p>
-                    <p class="mb-1"><strong>Estado:</strong> <span class="badge bg-warning text-dark">${order.status || 'pendiente'}</span></p>
+                    <p class="mb-1"><strong>Estado:</strong> <span class="badge ${colorBadge}">${estadoActual}</span></p>
                     <p class="mb-1"><strong>Items:</strong> ${itemsCount} producto(s)</p>
                     <p class="mb-0 small text-muted"><strong>Nota:</strong> ${order.notes || 'Sin nota'}</p>
                     <button class="btn btn-sm btn-outline-primary mt-2 toggle-items" data-order-id="${order.id}">Ver productos</button>
@@ -277,7 +286,7 @@ async function renderOrdersModal() {
         return;
     }
 
-    // ========== CASO USUARIO REGISTRADO (con email) ==========
+    //  CASO USUARIO REGISTRADO (con correo) 
     if (!user || !user.email) {
         container.innerHTML = '<p class="text-muted">No se encontró información del usuario.</p>';
         return;
@@ -319,6 +328,14 @@ async function renderOrdersModal() {
 
             const itemsCount = items.reduce((sum, item) => sum + (item.qty || 1), 0);
 
+            // Obtener el color del badge según el estado
+            const estadoActual = order.status || 'pendiente';
+            let colorBadge = 'bg-secondary';
+            if (estadoActual === 'pendiente') colorBadge = 'bg-warning text-dark';
+            if (estadoActual === 'preparacion' || estadoActual === 'preparando') colorBadge = 'bg-primary';
+            if (estadoActual === 'lista' || estadoActual === 'listo') colorBadge = 'bg-success';
+            if (estadoActual === 'recogido') colorBadge = 'bg-info';
+
             html += `
                 <div class="list-group-item list-group-item-action flex-column align-items-start mb-2 rounded-3 shadow-sm">
                     <div class="d-flex w-100 justify-content-between">
@@ -326,7 +343,7 @@ async function renderOrdersModal() {
                         <small class="text-muted">${fecha}</small>
                     </div>
                     <p class="mb-1"><strong>Total:</strong> $${Number(order.total || 0).toFixed(2)}</p>
-                    <p class="mb-1"><strong>Estado:</strong> <span class="badge bg-warning text-dark">${order.status || 'pendiente'}</span></p>
+                    <p class="mb-1"><strong>Estado:</strong> <span class="badge ${colorBadge}">${estadoActual}</span></p>
                     <p class="mb-1"><strong>Items:</strong> ${itemsCount} producto(s)</p>
                     <p class="mb-0 small text-muted"><strong>Nota:</strong> ${order.notes || 'Sin nota'}</p>
                     <button class="btn btn-sm btn-outline-primary mt-2 toggle-items" data-order-id="${order.id}">Ver productos</button>
