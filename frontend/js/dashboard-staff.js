@@ -233,7 +233,7 @@ window.cambiarEstadoOrden = async function (id, nuevoEstado) {
                 body: JSON.stringify({ estado: nuevoEstado })
             });
             if (respuesta.ok) {
-                cargarOrdenes(); 
+                cargarOrdenes();
             }
         }
     } catch (error) {
