@@ -75,18 +75,44 @@ async function cargarOrdenes() {
             if (estadoActual === 'lista' || estadoActual === 'listo') colorBadge = 'bg-success';
             if (estadoActual === 'recogido') colorBadge = 'bg-info';
 
-            // 🔴 NUEVA LÓGICA: Validar método y estado del pago de forma estricta
+
             const esTarjeta = orden.paymentIntentId !== null && orden.paymentIntentId !== undefined && orden.paymentIntentId !== '';
             const pagoTexto = esTarjeta ? '🟢 Tarjeta (Stripe)' : '🟡 Efectivo (Cobrar)';
             const pagoClase = esTarjeta ? 'bg-success' : 'bg-warning text-dark';
 
+            if (estadoActual === 'pendiente') {
+                claseEstado = 'select-pendiente';
+            }
+
+            else if (estadoActual === 'preparacion' || estadoActual === 'preparando') {
+                claseEstado = 'select-preparacion';
+            }
+
+            else if (estadoActual === 'lista' || estadoActual === 'listo') {
+                claseEstado = 'select-lista';
+            }
+
+            else if (estadoActual === 'recogido') {
+                claseEstado = 'select-recogido';
+            }
+
             const selectEstado = `
-                <select class="form-select form-select-sm" onchange="cambiarEstadoOrden('${orden.id}', this.value)">
-                    <option value="pendiente" ${estadoActual === 'pendiente' ? 'selected' : ''}>Pendiente</option>
-                    <option value="preparacion" ${estadoActual === 'preparacion' || estadoActual === 'preparando' ? 'selected' : ''}>En preparación</option>
-                    <option value="lista" ${estadoActual === 'lista' || estadoActual === 'listo' ? 'selected' : ''}>Lista</option>
-                    <option value="recogido" ${estadoActual === 'recogido' ? 'selected' : ''}>Recogido</option>
-                </select>
+            <select class="estado-select ${claseEstado}"onchange="cambiarEstadoOrden('${orden.id}', this.value)">
+                <option value="pendiente" ${estadoActual === 'pendiente' ? 'selected' : ''}>
+                    Pendiente
+                </option>
+
+                <option value="preparacion" ${estadoActual === 'preparacion' || estadoActual === 'preparando' ? 'selected' : ''}>
+                    En preparación
+                </option>
+
+                <option value="lista" ${estadoActual === 'lista' || estadoActual === 'listo' ? 'selected' : ''}>
+                    Lista
+                </option>
+                <option value="recogido" ${estadoActual === 'recogido' ? 'selected' : ''}>
+                    Recogido
+                </option>
+            </select>
             `;
 
             const fila = document.createElement('tr');
