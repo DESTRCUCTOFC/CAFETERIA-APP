@@ -4,12 +4,20 @@ const ORDERS_URL = 'http://localhost:4000/api/orders';
 
 function showAlert(message, texto, error = true) {
     if (!message) return;
-    message.style.padding = "10px";
+    if (!texto || texto.trim() === '') {
+        message.style.display = "none";
+        message.innerText = "";
+        return;
+    }
+    message.style.padding = "10px 20px";
     message.style.borderRadius = "12px";
     message.style.fontWeight = "bold";
     message.style.textAlign = "center";
     message.style.marginTop = "15px";
     message.style.display = "block";
+    message.style.width = "fit-content";
+    message.style.maxWidth = "400px";
+    message.style.margin = "15px auto 0 auto";
     if (error) {
         message.style.backgroundColor = "rgba(255, 0, 0, 0.5)";
         message.style.color = "white";
@@ -23,9 +31,31 @@ function showAlert(message, texto, error = true) {
 }
 
 
+//Botones de agregar elementos al menu
+const btnVisualAddMenu = document.getElementById("btn-visual-addMenu");
+const btnCerrarMenu = document.getElementById('btn-ocultar-formulario');
+const modalMenu = document.getElementById('modal-formulario-menu');
+
+btnVisualAddMenu?.addEventListener("click", () => {
+    modalMenu?.classList.add('mostrar');
+});
+btnCerrarMenu?.addEventListener("click", () => {
+    const alertaAddMenu = document.getElementById('alertAddMenu')
+    showAlert(alertaAddMenu, '')
+    modalMenu?.classList.remove('mostrar');
+});
+modalMenu?.addEventListener("click", (e) => {
+    if (e.target === modalMenu) {
+        modalMenu.classList.remove('mostrar');
+    }
+});
+
+
+
 
 document.addEventListener('DOMContentLoaded', () => {
     const user = JSON.parse(localStorage.getItem('user'));
+    const alert = document.getElementById('alertTry')
 
     // Solo dejar entrar si es Staff
     if (!user || user.role !== 'staff') {
@@ -49,6 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('menu-form').addEventListener('submit', agregarPlatillo);
     const clearBtn = document.getElementById('clear-form');
     if (clearBtn) clearBtn.addEventListener('click', () => document.getElementById('menu-form').reset());
+
 });
 
 
@@ -233,17 +264,18 @@ async function agregarPlatillo(e) {
         });
 
         if (respuesta.ok) {
-            alert("¡Platillo agregado exitosamente!");
+            showAlert(alertaAddMenu, "¡Platillo agregado exitosamente!", false)
             form.reset();
-            cargarMenu(); // Recargar la tabla para ver el nuevo platillo
+            cargarMenu();
         } else {
             const errorData = await respuesta.json();
             showAlert(alertaAddMenu, errorData.msg)
 
         }
     } catch (error) {
-
         console.error("Error en la solicitud POST:", error);
+    } finally {
+        showAlert(alertaAddMenu, '')
     }
 }
 

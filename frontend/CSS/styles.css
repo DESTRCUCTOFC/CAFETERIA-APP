@@ -116,7 +116,6 @@ body {
 	color: var(--ug-muted);
 }
 
-/* ===== utilidades extras ===== */
 .badge-ug {
 	background: rgba(10, 43, 62, 0.1);
 	color: var(--ug-primary);
@@ -571,4 +570,125 @@ body {
 .form-control:hover {
 	border-color: var(--ug-primary);
 	background-color: #fff;
+}
+
+.btn-header-accent {
+	background-color: transparent;
+	color: var(--ug-accent);
+	border: 1.5px solid var(--ug-accent);
+	padding: 0.5rem 1.2rem;
+	font-size: 0.9rem;
+	font-weight: 600;
+	border-radius: 2rem;
+	cursor: pointer;
+	transition: all 0.25s ease;
+}
+
+.btn-header-accent:hover {
+	background-color: var(--ug-accent);
+	color: var(--ug-primary-dark);
+
+}
+
+.btn-header-accent:focus {
+	outline: none;
+	box-shadow:
+		0 0 0 2px var(--ug-primary),
+		0 0 0 5px rgba(217, 161, 59, 0.4);
+}
+
+.btn-header-accent:active {
+	transform: scale(0.97);
+	box-shadow:
+		0 0 0 2px var(--ug-primary),
+		0 0 0 3px rgba(217, 161, 59, 0.4),
+		0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.btn-header-solid-accent:active {
+	transform: scale(0.97);
+	box-shadow:
+		0 0 0 2px var(--ug-primary),
+		0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.btn-outline-secondary {
+	cursor: pointer;
+}
+
+/* hacer flotante add menu */
+.modal-overlay {
+	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.5);
+	z-index: 2000;
+	justify-content: center;
+	align-items: center;
+}
+
+.modal-overlay.mostrar {
+	display: flex;
+}
+
+.modal-container {
+	background: #ffffff;
+	border-radius: 1rem;
+	padding: 2rem;
+	width: 90%;
+	max-width: 550px;
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+	position: relative;
+	animation: entradaModal 0.3s ease-out;
+}
+
+.btn-cerrar-modal {
+	position: absolute;
+	top: 15px;
+	right: 20px;
+	font-size: 1.8rem;
+	background: none;
+	border: none;
+	cursor: pointer;
+	color: #666;
+	line-height: 1;
+}
+
+.btn-cerrar-modal:hover {
+	color: #000;
+}
+
+@keyframes entradaModal {
+	from {
+		transform: translateY(-30px);
+		opacity: 0;
+	}
+
+	to {
+		transform: translateY(0);
+		opacity: 1;
+	}
+}
+
+#admin-tools {
+	text-align: center;
+}
+
+
+.form-grid {
+	display: grid;
+	gap: 10px;
+	max-width: 500px;
+	margin: 0 auto 20px auto;
+}
+
+.form-actions {
+	display: flex;
+	gap: 0.5rem;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
 }

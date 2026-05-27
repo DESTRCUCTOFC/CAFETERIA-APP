@@ -120,6 +120,10 @@
                 </div>
             </div>
             <div>
+                <button type="button" id="btn-visual-addMenu" class="btn btn-header-accent">Agregar elementos al
+                    menú</button>
+            </div>
+            <div>
                 <button id="logout-btn" class="btn btn-outline-secondary">Salir</button>
             </div>
         </div>
@@ -134,6 +138,7 @@
                             <h2 class="h5 fw-bold text-dark mb-0"><i
                                     class="bi bi-clock-history me-2 text-primary"></i>Monitor de Órdenes (Cocina)</h2>
                         </div>
+                        <div id="alertTry"></div>
                         <div class="table-responsive">
                             <table class="table align-middle">
                                 <thead class="table-light">
@@ -162,26 +167,32 @@
 
         </section>
 
-        <section id="admin-tools" class="card-panel">
-            <h2 style="margin-top:0">Agregar Nuevo Platillo</h2>
-            <div id="alertAddMenu" class=""></div>
-            <form id="menu-form" class="form-grid" enctype="multipart/form-data">
-                <input type="text" id="prod-nombre" name="nombre" class="form-control" placeholder="Nombre del platillo"
-                    required>
-                <input type="text" id="prod-descripcion" name="descripcion" class="form-control"
-                    placeholder="Breve descripción" required>
-                <input type="text" id="prod-categoria" name="categoria" class="form-control"
-                    placeholder="Categoría (Ej. Bebidas, Postres)" required>
-                <input type="number" id="prod-precio" name="precio" class="form-control" placeholder="Precio ($)"
-                    step="0.50" required>
-                <input type="file" id="prod-imagen" name="imagen" class="form-control" accept="image/*">
-                <div class="form-actions">
-                    <button type="submit" class="btn-add-menu ">Agregar al Menú</button>
-                    <button type="button" id="clear-form" class="btn btn-clean">Limpiar</button>
-                </div>
-            </form>
-        </section>
+        <div id="modal-formulario-menu" class="modal-overlay">
+            <div class="modal-container">
+                <button type="button" id="btn-ocultar-formulario" class="btn-cerrar-modal">&times;</button>
 
+                <section id="admin-tools" class="card-panel"
+                    style="margin-bottom: 0; border: none; box-shadow: none; padding: 0;">
+                    <h2 style="margin-top:0">Agregar Nuevo Platillo</h2>
+                    <div id="alertAddMenu" class=""></div>
+                    <form id="menu-form" class="form-grid" enctype="multipart/form-data">
+                        <input type="text" id="prod-nombre" name="nombre" class="form-control"
+                            placeholder="Nombre del platillo" required>
+                        <input type="text" id="prod-descripcion" name="descripcion" class="form-control"
+                            placeholder="Breve descripción" required>
+                        <input type="text" id="prod-categoria" name="categoria" class="form-control"
+                            placeholder="Categoría (Ej. Bebidas, Postres)" required>
+                        <input type="number" id="prod-precio" name="precio" class="form-control"
+                            placeholder="Precio ($)" step="0.50" required>
+                        <input type="file" id="prod-imagen" name="imagen" class="form-control" accept="image/*">
+                        <div class="form-actions">
+                            <button type="submit" class="btn-add-menu">Agregar al Menú</button>
+                            <button type="button" id="clear-form" class="btn btn-clean">Limpiar</button>
+                        </div>
+                    </form>
+                </section>
+            </div>
+        </div>
 
         <section id="menu-view" class="card-panel">
             <div class="menu-header">
