@@ -48,14 +48,6 @@
             margin: 1.25rem auto;
         }
 
-        .card-panel {
-            background: var(--ug-card);
-            border: 1px solid var(--ug-border);
-            border-radius: 1rem;
-            padding: 1rem;
-            box-shadow: 0 6px 20px rgba(31, 41, 55, 0.04);
-            margin-bottom: 1rem;
-        }
 
         .table-container {
             margin-top: 1rem;
@@ -130,6 +122,7 @@
     </header>
 
     <main class="content">
+        
         <section class="card-panel">
             <div class="row g-4">
                 <div class="col-xl-7">
@@ -144,12 +137,12 @@
                                 <thead class="table-light">
                                     <tr>
                                     <tr>
-                                        <th>Orden</th>
-                                        <th>Cliente</th>
-                                        <th>Productos</th>
-                                        <th>Total</th>
-                                        <th>Pago</th>
-                                        <th>Estado</th>
+                                        <th style="color: white">Orden</th>
+                                        <th style="color: white">Cliente</th>
+                                        <th style="color: white">Productos</th>
+                                        <th style="color: white">Total</th>
+                                        <th style="color: white">Pago</th>
+                                        <th style="color: white">Estado</th>
                                     </tr>
                                     </tr>
                                 </thead>
@@ -177,47 +170,45 @@
                     <div id="alertAddMenu" class=""></div>
                     <form id="menu-form" class="form-grid" enctype="multipart/form-data">
                         <input type="text" id="prod-nombre" name="nombre" class="form-control"
-                            placeholder="Nombre del platillo" required>
+                            placeholder="Nombre del platillo" required style="font-family: 'Poppins', sans-serif;">
                         <input type="text" id="prod-descripcion" name="descripcion" class="form-control"
-                            placeholder="Breve descripción" required>
+                            placeholder="Breve descripción" required style="font-family: 'Poppins', sans-serif;">
                         <input type="text" id="prod-categoria" name="categoria" class="form-control"
-                            placeholder="Categoría (Ej. Bebidas, Postres)" required>
+                            placeholder="Categoría (Ej. Bebidas, Postres)" required style="font-family: 'Poppins', sans-serif;">
                         <input type="number" id="prod-precio" name="precio" class="form-control"
                             placeholder="Precio ($)" step="0.50" required>
-                        <input type="file" id="prod-imagen" name="imagen" class="form-control" accept="image/*">
+                        <input type="file" id="prod-imagen" name="imagen" class="form-control" accept="image/*" style="font-family: 'Poppins', sans-serif;">
                         <div class="form-actions">
                             <button type="submit" class="btn-add-menu">Agregar al Menú</button>
-                            <button type="button" id="clear-form" class="btn btn-clean">Limpiar</button>
+                            <button type="button" id="clear-form" class="btn-outline-secondary " style="font-family: 'Poppins', sans-serif;">Limpiar</button>
                         </div>
                     </form>
                 </section>
             </div>
         </div>
 
-        <section id="menu-view" class="card-panel">
-            <div class="menu-header">
-                <h2>Menú Actual</h2>
-                <p>Administra los platillos disponibles en el sistema.</p>
+       <section id="menu-view" class="card-panel card border-0 shadow-sm p-4 bg-white rounded-3 h-100">
+            <div class="menu-header d-flex flex-column mb-3">
+                <h2 class="h5 fw-bold text-dark mb-0">Menú Actual</h2>
+                <p class="text-muted small mb-0">Administra los platillos disponibles en el sistema.</p>
             </div>
 
-            <div class="table-container">
-                <table>
-                    <thead>
+            <div class="table-container table-responsive">
+                <table class="table align-middle">
+                    <thead class="table-light">
                         <tr>
-                            <th>Imagen</th>
-                            <th>Platillo</th>
-                            <th>Categoría</th>
-                            <th>Precio</th>
-                            <th>Estado</th>
-                            <th>Acciones</th>
+                            <th style="color: white">Imagen</th>
+                            <th style="color: white">Platillo</th>
+                            <th style="color: white">Categoría</th>
+                            <th style="color: white">Precio</th>
+                            <th style="color: white">Estado</th>
+                            <th style="color: white">Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="tabla-menu-body">
                     </tbody>
                 </table>
             </div>
-
-
         </section>
     </main>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>

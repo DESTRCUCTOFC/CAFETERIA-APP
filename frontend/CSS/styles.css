@@ -208,8 +208,11 @@ body {
 .card-panel {
 	background: var(--ug-card);
 	border: 1px solid var(--ug-border);
-	border-radius: 1.15rem;
+	border-radius: 2rem;
 	box-shadow: 0 8px 22px rgba(31, 41, 55, 0.05);
+	margin-bottom: 1rem;
+	padding: 1rem;
+	
 }
 
 .hero-panel {
@@ -474,55 +477,165 @@ body {
 }
 
 
-/* Dashboard de staff */
+/* ============ Dashboard de staff ====================*/
+
+/*SELECT ========================================== */
 .estado-select {
-	border: none;
-	border-radius: 15px;
-	padding: 12px 13px;
-	font-weight: 900;
-	font-size: 14px;
-	text-align: center;
-	text-align-last: center;
-
-	cursor: pointer;
-	transition: all 0.25s ease;
-	outline: none;
-	min-width: 170px;
-
-	appearance: none;
-	-webkit-appearance: none;
-	-moz-appearance: none;
-
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 2px solid transparent;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
-
 
 .estado-select:hover {
-	transform: translateY(-1px);
-	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    transform: scale(1.03);
 }
 
+.estado-select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 8px rgba(13,110,253,0.4);
+}
 
 
 .select-pendiente {
-	background-color: #f2ff009d;
-	color: #212529;
+	background-color: rgba(217, 161, 59, 0.15); 
+    color: #9c6c1b; 
+    border-color: rgba(217, 161, 59, 0.3);
 }
 
 .select-preparacion {
-	background-color: #0d6efd;
-	color: white;
+	background-color: rgba(10, 43, 62, 0.08); 
+    color: var(--ug-primary); 
+    border-color: rgba(10, 43, 62, 0.2);
 }
 
 .select-lista {
-	background-color: #198754;
-	color: white;
+	background-color: #d1fae5; 
+    color: #065f46; 
+    border-color: #a7f3d0;
 }
 
+/* ======Tabla de Ordenes ====== */
+
+.card.bg-white.rounded-3 {
+    background-color: var(--ug-card);
+}
+
+.card h2.text-dark {
+    color: var(--ug-primary) ; 
+}
+
+.card h2 .text-primary {
+    color: var(--ug-accent) ;
+}
+
+.table.align-middle {
+    margin-bottom: 0;
+}
+
+.table.align-middle :not(caption) > * > * {
+    border-bottom-color: var(--ug-border);
+}
+
+.table.align-middle .table-light {
+    background-color: var(--ug-primary) 
+}
+
+.table.align-middle .table-light th {
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    border-bottom: none;
+}
+
+.card h2.text-dark {
+    color: var(--ug-primary) !important; /
+}
+
+.card h2 .text-primary {
+    color: var(--ug-accent) !important; 
+}
+
+.table.align-middle th,
+.table.align-middle td {
+    padding: 16px 12px; 
+    font-size: 14px;
+}
+
+
+.table-responsive {
+	border: 1px solid var(--ug-border);
+	border-radius: 12px;
+	overflow: hidden;
+}
+
+.table #tabla-ordenes-body tr {
+    transition: background-color 0.2s ease;
+}
+
+.table #tabla-ordenes-body tr:hover {
+    background-color: var(--ug-bg) ; 
+}
+
+.table #tabla-ordenes-body .text-muted {
+    color: var(--ug-muted) !important;
+    font-style: italic;
+}
+
+
+/* Tabla de menu ================== */
+.menu-img {
+    width: 54px;
+    height: 54px;
+    object-fit: cover; 
+    border-radius: 8px; 
+    border: 1px solid var(--ug-border);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+div.menu-img {
+    background-color: var(--ug-bg) !important;
+    color: var(--ug-muted) !important;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-style: dashed; 
+}
+
+
+#tabla-menu-body tr:hover {
+    background-color: var(--ug-bg) !important; 
+	transition: background-color 0.2s ease;
+}
+
+
+#tabla-menu-body td[style*="green"],
+#tabla-ordenes-body td[style*="green"] {
+    color: #166534 !important; 
+    background-color: #dcfce7 !important; 
+    border: 1px solid #bbf7d0 !important;
+}
+
+#tabla-menu-body td[style*="red"],
+#tabla-ordenes-body td[style*="red"] {
+    color: #991b1b !important; 
+    background-color: #fee2e2 !important; 
+    border: 1px solid #fecaca !important;
+}
+
+
+
+/* Agrgerar platillos a menu ====================== */
 .btn-add-menu {
-	background: linear-gradient(135deg, #0d6efd, #0b5ed7);
+	background: var(--ug-primary);
 	color: white;
 	border: none;
 	border-radius: 12px;
+	font-family: 'Poppins', sans-serif;
 
 	padding: 10px 18px;
 
@@ -539,7 +652,7 @@ body {
 .btn-add-menu:hover {
 	transform: translateY(-2px);
 	box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
-	background: linear-gradient(135deg, #0b5ed7, #084298);
+	background: var(--ug-accent);
 }
 
 .btn-add-menu:active {
@@ -613,7 +726,27 @@ body {
 }
 
 .btn-outline-secondary {
-	cursor: pointer;
+	background-color: var(--ug-bg);
+    color: var(--ug-primary);
+    border: 1.5px solid var(--ug-border); 
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 10px; 
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px; 
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-outline-secondary:hover {
+    background-color: rgb(169, 169, 169); 
+    border-color: var(--ug-border);
+    
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(10, 43, 62, 0.15);
 }
 
 /* hacer flotante add menu */

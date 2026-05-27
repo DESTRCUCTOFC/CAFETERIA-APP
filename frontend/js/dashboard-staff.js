@@ -138,7 +138,7 @@ async function cargarOrdenes() {
 
 
             const esTarjeta = orden.paymentIntentId !== null && orden.paymentIntentId !== undefined && orden.paymentIntentId !== '';
-            const pagoTexto = esTarjeta ? '🟢Tarjeta ' : '🟡Efectivo ';
+            const pagoTexto = esTarjeta ? '💳Tarjeta ' : '💵Efectivo ';
             const pagoClase = esTarjeta ? 'bg-success' : 'bg-warning text-dark';
 
             // clases para  lista de cambio de estado
@@ -218,7 +218,7 @@ async function cargarMenu() {
                     <td>${imagenHTML}</td>
                     <td>
                         <strong>${item.nombre}</strong><br>
-                        <small style="color: #666;">${item.descripcion}</small>
+                        <small style="color: var(--ug-primary);">${item.descripcion}</small>
                     </td>
                     <td>${item.categoria}</td>
                     <td>$${Number(item.precio).toFixed(2)}</td>
