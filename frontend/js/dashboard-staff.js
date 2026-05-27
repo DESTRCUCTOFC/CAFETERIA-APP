@@ -1,5 +1,28 @@
+
 const API_URL = 'http://localhost:4000/api/menu';
 const ORDERS_URL = 'http://localhost:4000/api/orders';
+
+function showAlert(message, texto, error = true) {
+    if (!message) return;
+    message.style.padding = "10px";
+    message.style.borderRadius = "12px";
+    message.style.fontWeight = "bold";
+    message.style.textAlign = "center";
+    message.style.marginTop = "15px";
+    message.style.display = "block";
+    if (error) {
+        message.style.backgroundColor = "rgba(255, 0, 0, 0.5)";
+        message.style.color = "white";
+        message.innerText = texto;
+    } else {
+        // Estilo para éxito (verde translúcido o sólido)
+        message.style.backgroundColor = "rgba(40, 167, 69, 0.2)";
+        message.style.color = "#155724";
+        message.innerText = texto;
+    }
+}
+
+
 
 document.addEventListener('DOMContentLoaded', () => {
     const user = JSON.parse(localStorage.getItem('user'));
@@ -29,6 +52,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
+
+
 //Funcion que carga las ordenes
 async function cargarOrdenes() {
     try {
@@ -50,19 +75,24 @@ async function cargarOrdenes() {
         }
 
         ordenes.forEach(orden => {
-            // 1. OBTENER EL ARREGLO DE PRODUCTOS (Soporta 'productos' o 'items')
+            //Lista de Productos
             const arregloProductos = orden.productos || orden.items;
-            let listaProductos = 'Sin productos';
+            listaProductos = `
+                  <ul class="lista-productos">
+                     ${arregloProductos.map(p => {
+                const nombreProd = p.nombre || p.name || 'Producto';
+                const cantidadProd = p.cantidad || p.qty || 1;
+                return `
+                <li>
+                    <span>${nombreProd}</span>
+                    <strong>x${cantidadProd}</strong>
+                </li>
+                `;
+            }).join('')}
+                    </ul>
+                `;
 
-            if (arregloProductos && arregloProductos.length > 0) {
-                listaProductos = arregloProductos.map(p => {
-                    const nombreProd = p.nombre || p.name || 'Producto';
-                    const cantidadProd = p.cantidad || p.qty || 1;
-                    return `${nombreProd} (${cantidadProd})`;
-                }).join(', ');
-            }
-
-            // 2. OBTENER EL NOMBRE DEL CLIENTE
+            // NOMBRE DEL CLIENTE
             const nombreCliente = orden.cliente || orden.studentName || 'Invitado';
 
             // 3. OBTENER EL ESTADO
@@ -77,9 +107,10 @@ async function cargarOrdenes() {
 
 
             const esTarjeta = orden.paymentIntentId !== null && orden.paymentIntentId !== undefined && orden.paymentIntentId !== '';
-            const pagoTexto = esTarjeta ? '🟢 Tarjeta (Stripe)' : '🟡 Efectivo (Cobrar)';
+            const pagoTexto = esTarjeta ? '🟢Tarjeta ' : '🟡Efectivo ';
             const pagoClase = esTarjeta ? 'bg-success' : 'bg-warning text-dark';
 
+            // clases para  lista de cambio de estado
             if (estadoActual === 'pendiente') {
                 claseEstado = 'select-pendiente';
             }
@@ -117,7 +148,7 @@ async function cargarOrdenes() {
 
             const fila = document.createElement('tr');
 
-            // 4. RENDERIZADO (Agregamos la columna del estado del pago antes del estado de preparación)
+            // Se rendereiza  lo anteriormente establecido
             fila.innerHTML = `
                 <td><strong>#${orden.id ? orden.id.slice(-4) : '????'}</strong></td>
                 <td>${nombreCliente}</td>
@@ -126,9 +157,7 @@ async function cargarOrdenes() {
                 <td>
                     <span class="badge ${pagoClase}">${pagoTexto}</span>
                 </td>
-                <td>
-                    <span class="badge ${colorBadge} text-capitalize">${estadoActual}</span>
-                </td>
+             
                 <td>${selectEstado}</td>
             `;
             tbody.appendChild(fila);
@@ -181,6 +210,7 @@ async function cargarMenu() {
 async function agregarPlatillo(e) {
     e.preventDefault();
     const form = e.target;
+    const alertaAddMenu = document.getElementById('alertAddMenu')
 
     const formData = new FormData();
     formData.append('nombre', document.getElementById('prod-nombre').value);
@@ -195,6 +225,8 @@ async function agregarPlatillo(e) {
     }
 
     try {
+
+
         const respuesta = await fetch(API_URL, {
             method: 'POST',
             body: formData
@@ -206,9 +238,11 @@ async function agregarPlatillo(e) {
             cargarMenu(); // Recargar la tabla para ver el nuevo platillo
         } else {
             const errorData = await respuesta.json();
-            alert("Error: " + errorData.msg);
+            showAlert(alertaAddMenu, errorData.msg)
+
         }
     } catch (error) {
+
         console.error("Error en la solicitud POST:", error);
     }
 }

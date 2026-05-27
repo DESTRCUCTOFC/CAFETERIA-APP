@@ -1,6 +1,6 @@
 
-export function showAlert(texto, error = true) {
-    const message = document.getElementById("message");
+export function showAlert(message, texto, error = true) {
+
     if (!message) return;
     message.style.padding = "10px";
     message.style.borderRadius = "12px";

@@ -7,7 +7,7 @@ export const agregarElementoMenu = async (req, res) => {
         const { nombre, descripcion, precio, categoria } = req.body;
         let imagenUrl = "";
 
-        if (req.file) {
+        if (req.file) {//Si tiene imagen ejecuta
             const result = await new Promise((resolve, reject) => {
                 const uploadStream = cloudinary.uploader.upload_stream(
                     { folder: 'cafeteria_app' },
@@ -35,7 +35,6 @@ export const agregarElementoMenu = async (req, res) => {
         res.status(201).json({ id: docRef.id, ...nuevoElemento });
 
     } catch (error) {
-        console.error("Error en agregarElementoMenu:", error);
         res.status(500).json({ msg: "Hubo un error al crear el platillo", error: error.message });
     }
 };
@@ -55,7 +54,7 @@ export const obtenerMenu = async (req, res) => {
 export const actualizarDisponibilidad = async (req, res) => {
     try {
         const { id } = req.params;
-        const { disponible } = req.body; 
+        const { disponible } = req.body;
 
         await db.collection('menu').doc(id).update({ disponible });
 
