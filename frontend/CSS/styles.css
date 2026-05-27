@@ -692,3 +692,56 @@ body {
 	justify-content: center;
 	width: 100%;
 }
+
+/*tabs del dashboard*/
+.nav-tabs {
+	border-bottom: none;
+	gap: 12px;
+	margin-top: 5px;
+}
+
+.nav-tabs .nav-link {
+	color: #555;
+	font-weight: 600;
+	border: 1px solid transparent;
+	border-top-left-radius: 0.5rem;
+	border-top-right-radius: 0.5rem;
+	padding: 0.6rem 1.2rem;
+	transition: all 0.2s ease;
+}
+
+/* Estado al pasar el cursor */
+.nav-tabs .nav-link:hover {
+	background-color: rgba(217, 161, 59, 0.05);
+	/* Toque sutil dorado */
+	border-color: transparent;
+	color: var(--ug-primary, #0a2b3e);
+}
+
+/* Pestaña activa (Hoja seleccionada) */
+.nav-tabs .nav-link.active {
+	color: white !important;
+	background: linear-gradient(90deg, var(--ug-primary), var(--ug-primary-dark, #0a2b3e));
+	border-color: var(--ug-primary) var(--ug-primary) transparent var(--ug-primary);
+	box-shadow: 0 -2px 10px rgba(10, 43, 62, 0.1);
+}
+
+/* Efecto de transición de desvanecimiento suave al cambiar de pestaña */
+.tab-pane.fade {
+	transition: opacity 0.15s linear;
+}
+
+/* Oculta por completo el panel que no esté activo */
+.tab-content>.tab-pane:not(.active) {
+	display: none !important;
+}
+
+/* Muestra correctamente el panel activo */
+.tab-content>.tab-pane.active {
+	display: block !important;
+}
+
+/* Evita que las animaciones de Bootstrap dejen elementos en display: none */
+.tab-content>.tab-pane.fadeIn {
+	display: block !important;
+}
