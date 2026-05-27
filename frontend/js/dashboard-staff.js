@@ -75,10 +75,10 @@ async function cargarOrdenes() {
             if (estadoActual === 'lista' || estadoActual === 'listo') colorBadge = 'bg-success';
             if (estadoActual === 'recogido') colorBadge = 'bg-info';
 
-            // 🔴 NUEVA LÓGICA: Validar método y estado del pago de forma estricta
+            // NUEVA LÓGICA: Validar método y estado del pago de forma estricta
             const esTarjeta = orden.paymentIntentId !== null && orden.paymentIntentId !== undefined && orden.paymentIntentId !== '';
-            const pagoTexto = esTarjeta ? '🟢 Tarjeta (Stripe)' : '🟡 Efectivo (Cobrar)';
-            const pagoClase = esTarjeta ? 'bg-success' : 'bg-warning text-dark';
+            const pagoTexto = esTarjeta ? '💳Tarjeta (Stripe)' : '💵Efectivo (Cobrar)';
+            const pagoClase = esTarjeta ? '' : '';
 
             const selectEstado = `
                 <select class="form-select form-select-sm" onchange="cambiarEstadoOrden('${orden.id}', this.value)">
@@ -136,11 +136,13 @@ async function cargarMenu() {
                     </td>
                     <td>${item.categoria}</td>
                     <td>$${Number(item.precio).toFixed(2)}</td>
-                    <td style="color: ${item.disponible ? 'green' : 'red'}; font-weight: bold;">
-                        ${item.disponible ? 'Disponible' : 'Agotado'}
+                    <td>
+                        <span class="badge ${item.disponible ? 'bg-success' : 'bg-warning text-dark'}">
+                            ${item.disponible ? 'Disponible' : 'Agotado'}
+                        </span>
                     </td>
                     <td>
-                        <button class="btn btn-outline-secondary btn-sm" onclick="cambiarDisponibilidad('${item.id}', ${!item.disponible})">
+                        <button class=" btn-outline-secondary " style="height: 50px; width: 100%;" onclick="cambiarDisponibilidad('${item.id}', ${!item.disponible})">
                             Marcar como ${item.disponible ? 'Agotado' : 'Disponible'}
                         </button>
                     </td>

@@ -32,17 +32,21 @@
             font-size: 1.25rem;
             font-weight: 600;
         }
-
+    
         #logout-btn {
             width: 100px;
             height: 36px;
             color: var(--ug-primary);
+            border-color: var(--ug-border);
+            border-radius: 15px;
             font-weight: 600;
             font-family: 'Poppins', sans-serif;
             font-size: 0.9rem;
             border-radius: 1.25rem;
-        }
+            
+        } 
 
+       
         .content {
             max-width: 1100px;
             margin: 1.25rem auto;
@@ -88,22 +92,6 @@
             border-radius: 8px;
         }
 
-        .form-grid {
-            display: grid;
-            gap: 10px;
-            max-width: 500px;
-            margin-bottom: 20px;
-        }
-
-        .form-grid .form-control {
-            border-radius: 0.65rem;
-        }
-
-        .form-actions {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-        }
     </style>
 </head>
 
@@ -120,7 +108,7 @@
                 </div>
             </div>
             <div>
-                <button id="logout-btn" class="btn btn-outline-secondary">Salir</button>
+                <button id="logout-btn" class="btn">Salir</button>
             </div>
         </div>
     </header>
@@ -136,18 +124,18 @@
                             <span class="badge bg-light text-primary border border-primary small">Auto-refresh activo
                                 (15s)</span>
                         </div>
-                        <div class="table-responsive">
+                        <div class="table-responsive" >
                             <table class="table align-middle">
                                 <thead class="table-light">
                                     <tr>
                                     <tr>
-                                        <th>Orden</th>
-                                        <th>Cliente</th>
-                                        <th>Productos</th>
-                                        <th>Total</th>
-                                        <th>Pago</th>
-                                        <th>Estado</th>
-                                        <th>Acciones</th>
+                                        <th style="color: white;">Orden</th>
+                                        <th style="color: white;">Cliente</th>
+                                        <th style="color: white;">Productos</th>
+                                        <th style="color: white;">Total</th>
+                                        <th style="color: white;">Pago</th>
+                                        <th style="color: white;">Estado</th>
+                                        <th style="color: white;">Acciones</th>
                                     </tr>
                                     </tr>
                                 </thead>
@@ -161,13 +149,11 @@
                         </div>
                     </div>
                 </div>
-
-
         </section>
 
         <section id="admin-tools" class="card-panel">
             <h2 style="margin-top:0">Agregar Nuevo Platillo</h2>
-            <form id="menu-form" class="form-grid" enctype="multipart/form-data">
+            <form id="menu-form" class="form-grid" enctype="multipart/form-data" style="font-family: 'Poppins', sans-serif;">
                 <input type="text" id="prod-nombre" name="nombre" class="form-control" placeholder="Nombre del platillo"
                     required>
                 <input type="text" id="prod-descripcion" name="descripcion" class="form-control"
@@ -184,26 +170,30 @@
             </form>
         </section>
 
-        <section id="menu-view" class="card-panel">
-            <h2 style="margin-top:0">Menú Actual</h2>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Imagen</th>
-                            <th>Platillo</th>
-                            <th>Categoría</th>
-                            <th>Precio</th>
-                            <th>Estado</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabla-menu-body">
-                    </tbody>
-                </table>
+        <section id="menu-panel" class="card-panel">
+            <div class="menu-header">
+                <h2>Menú Actual</h2>
+                <p>Administra los platillos disponibles en el sistema.</p>
             </div>
 
+            <div class="menu-table-wrapper">
+                <table   table class="table-light table-responsive">
+                    <thead>
+                        <tr>
+                            <th style="color: white;">Imagen</th>
+                            <th style="color: white;">Platillo</th>
+                            <th style="color: white;">Categoría</th>
+                            <th style="color: white;">Precio</th>
+                            <th style="color: white;">Estado</th>
+                            <th style="color: white;">Acciones</th>
+                        </tr>
+                    </thead>
 
+                    <tbody id="tabla-menu-body">
+                        <td colspan="6" class="text-center py-3 text-muted">Cargando menú...</td>
+                    </tbody>
+                </table>
+            </div>  
         </section>
     </main>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
