@@ -825,3 +825,22 @@ div.menu-img {
 	justify-content: center;
 	width: 100%;
 }
+
+.btn-outline-danger {
+    border-radius: 12px;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    background-color: transparent;
+    border: 1px solid #dc3545;
+    color: #dc3545;
+}
+.btn-outline-danger:hover {
+    background-color: #dc3545;
+    color: white;
+    transform: translateY(-1px);
+}
+.me-1 {
+    margin-right: 0.25rem;
+}
