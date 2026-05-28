@@ -63,3 +63,31 @@ export const actualizarDisponibilidad = async (req, res) => {
         res.status(500).json({ msg: "Error al actualizar estado", error: error.message });
     }
 };
+
+export const actualizarPrecio = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { precio } = req.body;
+        
+        if (!precio || isNaN(precio) || precio <= 0) {
+            return res.status(400).json({ msg: "Precio inválido" });
+        }
+        
+        await db.collection('menu').doc(id).update({ precio });
+        res.status(200).json({ msg: "Precio actualizado" });
+    } catch (error) {
+        console.error("Error en actualizarPrecio:", error);
+        res.status(500).json({ msg: error.message });
+    }
+};
+
+export const eliminarPlatillo = async (req, res) => {
+    try {
+        const { id } = req.params;
+        await db.collection('menu').doc(id).delete();
+        res.status(200).json({ msg: "Platillo eliminado" });
+    } catch (error) {
+        console.error("Error en eliminarPlatillo:", error);
+        res.status(500).json({ msg: error.message });
+    }
+};

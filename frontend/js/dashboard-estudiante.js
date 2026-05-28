@@ -73,6 +73,13 @@ async function saveOrder(order) {
     return orders;
 }
 
+function truncarTexto(texto, maxLen = 210) {
+    if (!texto || texto.length <= maxLen) return texto;
+    let truncado = texto.slice(0, maxLen);
+    const lastSpace = truncado.lastIndexOf(' ');
+    if (lastSpace > 0) truncado = truncado.slice(0, lastSpace);
+    return truncado + '...';
+}
 
 function setupCartEvents() {
     const cartItemsContainer = document.getElementById('cartItems');
@@ -134,7 +141,14 @@ async function cargarMenuEstudiante() {
                 <img src="${imagenUrl}" alt="${item.nombre}" class="menu-img">
                 <div class="menu-info">
                     <h3 class="menu-title">${item.nombre} ${etiquetaAgotado}</h3>
-                    <p class="menu-desc">${item.descripcion || ''}</p>
+                    <p class="menu-desc">
+    ${(() => {
+        const desc = item.descripcion || '';
+        const truncada = truncarTexto(desc);
+        if (desc.length <= 210) return truncada;
+        return `${truncada} <a href="#" class="ver-mas-link" data-desc="${desc.replace(/"/g, '&quot;')}">ver más</a>`;
+    })()}
+</p>
                     <div class="menu-footer">
                         <span class="badge-categoria">${item.categoria || ''}</span>
                         <span class="menu-price">$${Number(item.precio).toFixed(2)}</span>
@@ -148,6 +162,17 @@ async function cargarMenuEstudiante() {
                     paintCart();
                 };
             }
+
+            const verMas = tarjeta.querySelector('.ver-mas-link');
+if (verMas) {
+    verMas.addEventListener('click', (e) => {
+        e.preventDefault();
+        const modal = new bootstrap.Modal(document.getElementById('modalDescripcionLarga'));
+        const modalBody = document.querySelector('#modalDescripcionLarga .modal-body');
+        modalBody.innerText = verMas.getAttribute('data-desc');
+        modal.show();
+    });
+}
             container.appendChild(tarjeta);
         });
     } catch (error) {
@@ -171,6 +196,7 @@ function aplicarFiltros() {
     else if (sortBy === 'price_desc') filtrados.sort((a, b) => b.precio - a.precio);
     renderMenuFiltrado(filtrados);
 }
+
 function renderMenuFiltrado(platillos) {
     const container = document.getElementById('menu-container');
     container.innerHTML = '';
@@ -183,11 +209,33 @@ function renderMenuFiltrado(platillos) {
         const claseTarjeta = estaAgotado ? 'menu-card agotado' : 'menu-card';
         const etiquetaAgotado = estaAgotado ? '<span class="badge-agotado">Agotado</span>' : '';
         const imagenUrl = item.imagenUrl || 'https://via.placeholder.com/300x200?text=Sin+imagen';
+
         const tarjeta = document.createElement('div');
         tarjeta.className = claseTarjeta;
+        tarjeta.innerHTML = `
+            <img src="${imagenUrl}" alt="${item.nombre}" class="menu-img">
+            <div class="menu-info">
+                <h3 class="menu-title">${item.nombre} ${etiquetaAgotado}</h3>
+                <p class="menu-desc">
+    ${(() => {
+        const desc = item.descripcion || '';
+        const truncada = truncarTexto(desc);
+        if (desc.length <= 210) return truncada;
+        return `${truncada} <a href="#" class="ver-mas-link" data-desc="${desc.replace(/"/g, '&quot;')}">ver más</a>`;
+    })()}
+</p>
+                <div class="menu-footer">
+                    <span class="badge-categoria">${item.categoria || ''}</span>
+                    <span class="menu-price">$${Number(item.precio).toFixed(2)}</span>
+                </div>
+                ${!estaAgotado ? '<button class="btn btn-primary btn-agregar w-100 mt-2">Agregar al carrito</button>' : ''}
+            </div>
+        `;
+
         if (!estaAgotado) {
-            tarjeta.style.cursor = 'pointer';
-            tarjeta.onclick = () => {
+            const btn = tarjeta.querySelector('.btn-agregar');
+            btn.onclick = (e) => {
+                e.stopPropagation();
                 cart = addToCart({
                     id: item.id,
                     name: item.nombre,
@@ -196,26 +244,22 @@ function renderMenuFiltrado(platillos) {
                 });
                 paintCart();
             };
-        } else {
-            tarjeta.style.cursor = 'not-allowed';
         }
-        tarjeta.innerHTML = `
-            <img src="${imagenUrl}" alt="${item.nombre}" class="menu-img">
-            <div class="menu-info">
-                <h3 class="menu-title">
-                    ${item.nombre} 
-                    ${etiquetaAgotado}
-                </h3>
-                <p class="menu-desc">${item.descripcion || ''}</p>
-                <div class="menu-footer">
-                    <span class="badge-categoria">${item.categoria || ''}</span>
-                    <span class="menu-price">$${Number(item.precio).toFixed(2)}</span>
-                </div>
-            </div>
-        `;
+        const verMas = tarjeta.querySelector('.ver-mas-link');
+if (verMas) {
+    verMas.addEventListener('click', (e) => {
+        e.preventDefault();
+        const modal = new bootstrap.Modal(document.getElementById('modalDescripcionLarga'));
+        const modalBody = document.querySelector('#modalDescripcionLarga .modal-body');
+        modalBody.innerText = verMas.getAttribute('data-desc');
+        modal.show();
+    });
+}
+
         container.appendChild(tarjeta);
     });
 }
+
 
 async function renderOrdersModal() {
     const user = JSON.parse(localStorage.getItem('user'));

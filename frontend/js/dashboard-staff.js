@@ -225,11 +225,18 @@ async function cargarMenu() {
                     <td style="color: ${item.disponible ? 'green' : 'red'}; font-weight: bold;">
                         ${item.disponible ? 'Disponible' : 'Agotado'}
                     </td>
-                    <td>
-                        <button class="btn btn-outline-secondary btn-sm" onclick="cambiarDisponibilidad('${item.id}', ${!item.disponible})">
-                            Marcar como ${item.disponible ? 'Agotado' : 'Disponible'}
-                        </button>
-                    </td>
+                  <td class="acciones-columna">
+        <div class="acciones-vertical">
+            
+        
+            <button class="btn btn-outline-secondary btn-sm" onclick="cambiarDisponibilidad('${item.id}', ${!item.disponible})">
+                ${item.disponible ? '🚫 Marcar agotado' : '✅ Marcar disponible'}
+            </button>
+            <button class="btn btn-outline-secondary btn-sm" onclick="eliminarPlatillo('${item.id}', '${item.nombre.replace(/'/g, "\\'")}')">
+    🗑️ Eliminar producto
+</button>
+        </div>
+    </td>
                 `;
             tbody.appendChild(fila);
         });
@@ -278,6 +285,8 @@ async function agregarPlatillo(e) {
         showAlert(alertaAddMenu, '')
     }
 }
+
+
 
 
 window.cambiarDisponibilidad = async function (id, nuevoEstado) {
@@ -330,5 +339,52 @@ window.cambiarEstadoOrden = async function (id, nuevoEstado) {
         }
     } catch (error) {
         console.error("Error al actualizar el estado de la orden:", error);
+    }
+};
+
+// ========== NUEVAS FUNCIONES ==========
+window.editarPrecio = async function (id, precioActual) {
+    const nuevoPrecio = prompt("Ingrese el nuevo precio para este platillo:", precioActual);
+    if (nuevoPrecio === null) return;
+    const precioNumerico = parseFloat(nuevoPrecio);
+    if (isNaN(precioNumerico) || precioNumerico <= 0) {
+        alert("Por favor ingrese un precio válido mayor a 0.");
+        return;
+    }
+    try {
+        const respuesta = await fetch(`${API_URL}/${id}/precio`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ precio: precioNumerico })
+        });
+        if (respuesta.ok) {
+            alert("✅ Precio actualizado");
+            cargarMenu();
+        } else {
+            const error = await respuesta.json();
+            alert("❌ Error: " + (error.msg || error.message));
+        }
+    } catch (error) {
+        console.error("Error en editarPrecio:", error);
+        alert("Error de conexión");
+    }
+};
+
+// Función correcta para eliminar platillo (sin export)
+window.eliminarPlatillo = async function (id, nombre) {
+    const confirmar = confirm(`¿Eliminar "${nombre}"? No se puede deshacer.`);
+    if (!confirmar) return;
+    try {
+        const respuesta = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+        if (respuesta.ok) {
+            alert(`🗑️ "${nombre}" eliminado`);
+            cargarMenu();
+        } else {
+            const error = await respuesta.json();
+            alert("❌ Error: " + (error.msg || error.message));
+        }
+    } catch (error) {
+        console.error("Error en eliminarPlatillo:", error);
+        alert("Error de conexión");
     }
 };
