@@ -1,7 +1,7 @@
 import { db } from '../../config/firebase.js';
 import bcrypt from 'bcrypt';
 
-// 1. Correos autorizados para Staff (JP y AJ)
+// Correos autorizados para Staff (JP y AJ)
 const STAFF_EMAILS = ['jp@uni.edu', 'aj@uni.edu','ale@uni.edu'];
 
 export const login = async (req, res) => {
@@ -17,19 +17,19 @@ export const login = async (req, res) => {
 
         const userData = userDoc.data();
 
-        // 2. Comparamos la contraseña usando bcrypt
+        // Comparamos la contraseña usando bcrypt
         const isMatch = await bcrypt.compare(password, userData.password);
         if (!isMatch) {
             return res.status(401).json({ message: "Contraseña incorrecta" });
         }
 
-        // 3. El servidor devuelve el rol real guardado en la base de datos
+        //  el servidor devuelve el rol real guardado en la base de datos
         res.status(200).json({ 
             message: "Acceso exitoso", 
             user: { 
                 email: userData.email, 
                 name: userData.name, 
-                role: userData.role // Aquí se identifica si es staff o student
+                role: userData.role 
             } 
         });
 
@@ -42,7 +42,7 @@ export const registerStudent = async (req, res) => {
     try {
         const { email, name, password } = req.body;
 
-        // 4. BLOQUEO DE SEGURIDAD: Solo asigna 'staff' si el correo está en la lista blanca
+        //solo se  asigna 'staff' si el correo está en la lista 
         const finalRole = STAFF_EMAILS.includes(email) ? 'staff' : 'student';
 
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -51,7 +51,7 @@ export const registerStudent = async (req, res) => {
             name,
             email,
             password: hashedPassword,
-            role: finalRole, // Si no es JP o AJ, siempre será estudiante
+            role: finalRole, // Si no es jp o aj sera  estudaiante 
             createdAt: new Date().toISOString()
         });
 
