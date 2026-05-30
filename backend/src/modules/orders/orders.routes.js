@@ -5,8 +5,8 @@ import { getOrders, createOrder, updateOrderStatus, deleteOrder } from './orders
 const router = Router();
 
 // Define los endpoints relativos
-router.get('/', getOrders);    // Responde a GET http://localhost:4000/api/orders
-router.post('/', createOrder);  // Responde a POST http://localhost:4000/api/orders
+router.get('/', getOrders);    
+router.post('/', createOrder); 
 router.patch('/:id/estado', updateOrderStatus);
 router.delete('/:id', deleteOrder);  
 

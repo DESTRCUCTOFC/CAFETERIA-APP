@@ -30,7 +30,7 @@ function saveGuestOrderLocally(order) {
     localOrders.push(order);
     localStorage.setItem(ORDERS_KEY, JSON.stringify(localOrders));
 }
-// ===================== FUNCIÓN PRINCIPAL saveOrder =====================
+// saveOrder 
 /**
  * Guarda una orden localmente y la envía al servidor.
  * @param {Object} order - Objeto orden con campos: id, studentName, studentEmail, items, total, notes, etc.
@@ -266,77 +266,11 @@ async function renderOrdersModal() {
     const container = document.getElementById('ordersListContainer');
     if (!container) return;
 
-    // ========== CASO INVITADO (sin email) ==========
-    if (user && !user.email) {
-        const guestId = getGuestId();
-        const allOrders = readOrders();
-        const misOrdenes = allOrders.filter(order => order.guestId === guestId);
-
-        if (misOrdenes.length === 0) {
-            container.innerHTML = '<div class="alert alert-info">Aún no has realizado ninguna orden como invitado.</div>';
-            return;
-        }
-
-        misOrdenes.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-        let html = '<div class="list-group">';
-        misOrdenes.forEach(order => {
-            const fecha = new Date(order.createdAt).toLocaleString();
-            const items = Array.isArray(order.items) ? order.items : [];
-            const itemsCount = items.reduce((sum, item) => sum + (item.qty || 1), 0);
-            
-           
-            const estadoActual = order.status || 'pendiente';
-            let colorBadge = 'bg-secondary';
-            if (estadoActual === 'pendiente') colorBadge = 'bg-warning text-dark';
-            if (estadoActual === 'preparacion' || estadoActual === 'preparando') colorBadge = 'bg-primary';
-            if (estadoActual === 'lista' || estadoActual === 'listo') colorBadge = 'bg-success';
-            if (estadoActual === 'recogido') colorBadge = 'bg-info';
-            
-            html += `
-                <div class="list-group-item list-group-item-action flex-column align-items-start mb-2 rounded-3 shadow-sm">
-                    <div class="d-flex w-100 justify-content-between">
-                        <h6 class="mb-1 fw-bold">Orden #${order.id}</h6>
-                        <small class="text-muted">${fecha}</small>
-                    </div>
-                    <p class="mb-1"><strong>Total:</strong> $${order.total.toFixed(2)}</p>
-                    <p class="mb-1"><strong>Estado:</strong> <span class="badge ${colorBadge}">${estadoActual}</span></p>
-                    <p class="mb-1"><strong>Items:</strong> ${itemsCount} producto(s)</p>
-                    <p class="mb-0 small text-muted"><strong>Nota:</strong> ${order.notes || 'Sin nota'}</p>
-                    <button class="btn btn-sm btn-outline-primary mt-2 toggle-items" data-order-id="${order.id}">Ver productos</button>
-                    <div id="items-${order.id}" class="mt-2 small d-none">
-                        <hr>
-                        <ul class="mb-0">
-                            ${items.map(item => `<li>${item.qty || 1} x ${item.name || 'Producto'} - $${((item.price || 0) * (item.qty || 1)).toFixed(2)}</li>`).join('')}
-                        </ul>
-                    </div>
-                </div>
-            `;
-        });
-        html += '</div>';
-        container.innerHTML = html;
-
-        // Event listeners para los botones "Ver productos"
-        document.querySelectorAll('.toggle-items').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const orderId = btn.getAttribute('data-order-id');
-                const itemsDiv = document.getElementById(`items-${orderId}`);
-                if (itemsDiv) {
-                    itemsDiv.classList.toggle('d-none');
-                    btn.textContent = itemsDiv.classList.contains('d-none') ? 'Ver productos' : 'Ocultar productos';
-                }
-            });
-        });
-        return;
-    }
-
-    //  CASO USUARIO REGISTRADO (con correo) 
-    if (!user || !user.email) {
+    if (!user) {
         container.innerHTML = '<p class="text-muted">No se encontró información del usuario.</p>';
         return;
     }
 
-    // Mostrar spinner de carga
     container.innerHTML = '<div class="text-center"><div class="spinner-border text-primary" role="status"></div><p>Cargando tus órdenes...</p></div>';
 
     try {
@@ -344,10 +278,17 @@ async function renderOrdersModal() {
         if (!respuesta.ok) throw new Error('Error al obtener órdenes');
 
         const todasLasOrdenes = await respuesta.json();
-        const misOrdenes = todasLasOrdenes.filter(orden => orden.studentEmail === user.email);
+        
+        let misOrdenes = [];
+        if (user.email) {
+            misOrdenes = todasLasOrdenes.filter(orden => orden.studentEmail === user.email);
+        } else {
+            const guestId = getGuestId();
+            misOrdenes = todasLasOrdenes.filter(orden => orden.guestId === guestId);
+        }
 
         if (misOrdenes.length === 0) {
-            container.innerHTML = '<div class="alert alert-info">Aún no has realizado ninguna orden.</div>';
+            container.innerHTML = '<div class="alert alert-info">Aún no tienes órdenes activas.</div>';
             return;
         }
 
@@ -357,12 +298,11 @@ async function renderOrdersModal() {
         misOrdenes.forEach(order => {
             const fecha = new Date(order.createdAt).toLocaleString();
 
-            // 🔴 CORRECCIÓN AQUÍ: Validamos y normalizamos la estructura de productos vengan como vengan de la Base de Datos
+            // Normalización de productos
             let items = [];
             if (Array.isArray(order.items)) {
                 items = order.items;
             } else if (Array.isArray(order.productos)) {
-                // Mapeo por si la base de datos usa los nombres en español creados en saveOrder()
                 items = order.productos.map(p => ({
                     name: p.nombre || 'Producto',
                     qty: p.cantidad || 1,
@@ -372,7 +312,7 @@ async function renderOrdersModal() {
 
             const itemsCount = items.reduce((sum, item) => sum + (item.qty || 1), 0);
 
-            // Obtener el color del badge según el estado
+            // Obtener color del estado
             const estadoActual = order.status || 'pendiente';
             let colorBadge = 'bg-secondary';
             if (estadoActual === 'pendiente') colorBadge = 'bg-warning text-dark';
@@ -395,10 +335,10 @@ async function renderOrdersModal() {
                         <hr>
                         <ul class="mb-0">
                         ${items.map(item => {
-                const precioCalculado = (item.price || 0) * (item.qty || 1);
-                const textoPrecio = precioCalculado > 0 ? `- $${precioCalculado.toFixed(2)}` : '';
-                return `<li>${item.qty || 1} x ${item.name || 'Producto'} ${textoPrecio}</li>`;
-            }).join('')}    
+                            const precioCalculado = (item.price || 0) * (item.qty || 1);
+                            const textoPrecio = precioCalculado > 0 ? `- $${precioCalculado.toFixed(2)}` : '';
+                            return `<li>${item.qty || 1} x ${item.name || 'Producto'} ${textoPrecio}</li>`;
+                        }).join('')}    
                         </ul>
                     </div>
                 </div>
@@ -407,7 +347,7 @@ async function renderOrdersModal() {
         html += '</div>';
         container.innerHTML = html;
 
-        // Event listeners toggle
+        // Re-agregar los event listeners para botones de "Ver productos"
         document.querySelectorAll('.toggle-items').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const orderId = btn.getAttribute('data-order-id');
@@ -424,7 +364,6 @@ async function renderOrdersModal() {
         container.innerHTML = '<div class="alert alert-danger">Error al cargar tus órdenes. Intenta de nuevo más tarde.</div>';
     }
 }
-
 
 document.addEventListener('DOMContentLoaded', () => {
     const user = JSON.parse(localStorage.getItem('user'));
@@ -463,7 +402,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalTarjetaEl = document.getElementById('modalTarjeta');
     const btnConfirmarTarjeta = document.getElementById('submit-payment');
 
-    // PAGO EN EFECTIVO ---
+    // PAGO EN EFECTIVO 
     if (btnEfectivo) {
         btnEfectivo.addEventListener('click', async () => {
             const { total } = cartTotals(cart);
@@ -559,7 +498,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     id: `ORD-${Date.now().toString().slice(-6)}`,
                     studentName: userData.name || 'Invitado',
                     studentEmail: userData.email || '',
-                    guestId: !userData.email ? getGuestId() : null, // Mapeo de guestId explícito
+                    guestId: !userData.email ? getGuestId() : null, 
                     createdAt: new Date().toISOString(),
                     status: 'pendiente',
                     items: cart.map(item => ({ ...item, price: Number(item.price) })),
@@ -577,11 +516,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     const modalInstancia = bootstrap.Modal.getInstance(modalTarjetaEl);
 
                     if (modalInstancia) {
-                        // Escuchamos el evento de que el modal terminó de cerrarse por completo
+                        // el modal terminó de cerrarse 
                         modalTarjetaEl.addEventListener('hidden.bs.modal', () => {
                             alert('¡PAGO EXITOSO! 💸 Tu orden ya está en la cocina.');
                             window.location.reload();
-                        }, { once: true }); // { once: true } asegura que el evento se destruya tras usarse una vez
+                        }, { once: true }); //asegura que el evento se destruya 
 
                         modalInstancia.hide();
                     } else {
