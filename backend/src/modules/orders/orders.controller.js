@@ -86,3 +86,37 @@ export const updateOrderStatus = async (req, res) => {
         return res.status(500).json({ success: false, message: "Error interno del servidor" });
     }
 };
+
+// Elimina la orden cuando esta recogida
+export const deleteOrder = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const orderRef = db.collection('orders').doc(id);
+        const doc = await orderRef.get();
+
+        if (!doc.exists) {
+            const snapshot = await db.collection('orders').where('id', '==', id).limit(1).get();
+
+            if (snapshot.empty) {
+                return res.status(404).json({ success: false, message: "Orden no encontrada en el sistema" });
+            }
+
+            // eliminamos lo anterior 
+            const oldDocId = snapshot.docs[0].id;
+            await db.collection('orders').doc(oldDocId).delete();
+        } else {
+            // Eliminamos directamente
+            await orderRef.delete();
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: `Orden ${id} eliminada con éxito`
+        });
+
+    } catch (error) {
+        console.error("Error al eliminar orden:", error);
+        return res.status(500).json({ success: false, message: "Error interno del servidor" });
+    }
+};

@@ -9,17 +9,18 @@ form?.addEventListener("submit", async (e) => {
     const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value;
     const confirmPassword = document.getElementById("confirmPassword").value;
+    const message = document.getElementById("message");
 
     if (!name || !email || !password || !confirmPassword) {
-        showAlert("Todos los campos son obligatorios");
+        showAlert(message, "Todos los campos son obligatorios");
         return;
     }
     if (password !== confirmPassword) {
-        showAlert("Las contraseñas deben ser iguales");
+        showAlert(message, "Las contraseñas deben ser iguales");
         return;
     }
     if (password.length < 6) {
-        showAlert("La contraseña debe ser de al menos 6 caracteres");
+        showAlert(message, "La contraseña debe ser de al menos 6 caracteres");
         return;
     }
 
@@ -36,12 +37,12 @@ form?.addEventListener("submit", async (e) => {
         const data = await response.json();
 
         if (response.ok) {
-            showAlert("Registro exitoso Redirigiendo al login", false);
+            showAlert(message, "Registro exitoso Redirigiendo al login", false);
             setTimeout(() => {
                 window.location.href = "login.html";
             }, 2000);
         } else {
-            showAlert(data?.message || "En respuesta del servidor");
+            showAlert(message, data?.message || "En respuesta del servidor");
             btnRegistro.disabled = false;
             btnRegistro.innerHTML =
                 '<i class="bi bi-person-check me-2"></i> Crear cuenta';
@@ -50,6 +51,6 @@ form?.addEventListener("submit", async (e) => {
         btnRegistro.disabled = false;
         btnRegistro.innerHTML =
             '<i class="bi bi-person-check me-2"></i> Crear cuenta';
-        showAlert("Error de conexión");
+        showAlert(message, "Error de conexión");
     }
 });

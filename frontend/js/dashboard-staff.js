@@ -1,8 +1,61 @@
+
 const API_URL = 'http://localhost:4000/api/menu';
 const ORDERS_URL = 'http://localhost:4000/api/orders';
 
+function showAlert(message, texto, error = true) {
+    if (!message) return;
+    if (!texto || texto.trim() === '') {
+        message.style.display = "none";
+        message.innerText = "";
+        return;
+    }
+    message.style.padding = "10px 20px";
+    message.style.borderRadius = "12px";
+    message.style.fontWeight = "bold";
+    message.style.textAlign = "center";
+    message.style.marginTop = "15px";
+    message.style.display = "block";
+    message.style.width = "fit-content";
+    message.style.maxWidth = "400px";
+    message.style.margin = "15px auto 0 auto";
+    if (error) {
+        message.style.backgroundColor = "rgba(255, 0, 0, 0.5)";
+        message.style.color = "white";
+        message.innerText = texto;
+    } else {
+        // Estilo para éxito (verde translúcido o sólido)
+        message.style.backgroundColor = "rgba(40, 167, 69, 0.2)";
+        message.style.color = "#155724";
+        message.innerText = texto;
+    }
+}
+
+
+//Botones de agregar elementos al menu
+const btnVisualAddMenu = document.getElementById("btn-visual-addMenu");
+const btnCerrarMenu = document.getElementById('btn-ocultar-formulario');
+const modalMenu = document.getElementById('modal-formulario-menu');
+
+btnVisualAddMenu?.addEventListener("click", () => {
+    modalMenu?.classList.add('mostrar');
+});
+btnCerrarMenu?.addEventListener("click", () => {
+    const alertaAddMenu = document.getElementById('alertAddMenu')
+    showAlert(alertaAddMenu, '')
+    modalMenu?.classList.remove('mostrar');
+});
+modalMenu?.addEventListener("click", (e) => {
+    if (e.target === modalMenu) {
+        modalMenu.classList.remove('mostrar');
+    }
+});
+
+
+
+
 document.addEventListener('DOMContentLoaded', () => {
     const user = JSON.parse(localStorage.getItem('user'));
+    const alert = document.getElementById('alertTry')
 
     // Solo dejar entrar si es Staff
     if (!user || user.role !== 'staff') {
@@ -26,7 +79,10 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('menu-form').addEventListener('submit', agregarPlatillo);
     const clearBtn = document.getElementById('clear-form');
     if (clearBtn) clearBtn.addEventListener('click', () => document.getElementById('menu-form').reset());
+
 });
+
+
 
 
 //Funcion que carga las ordenes
@@ -50,19 +106,24 @@ async function cargarOrdenes() {
         }
 
         ordenes.forEach(orden => {
-            // 1. OBTENER EL ARREGLO DE PRODUCTOS (Soporta 'productos' o 'items')
+            //Lista de Productos
             const arregloProductos = orden.productos || orden.items;
-            let listaProductos = 'Sin productos';
+            listaProductos = `
+                  <ul class="lista-productos">
+                     ${arregloProductos.map(p => {
+                const nombreProd = p.nombre || p.name || 'Producto';
+                const cantidadProd = p.cantidad || p.qty || 1;
+                return `
+                <li>
+                    <span>${nombreProd}</span>
+                    <strong>x${cantidadProd}</strong>
+                </li>
+                `;
+            }).join('')}
+                    </ul>
+                `;
 
-            if (arregloProductos && arregloProductos.length > 0) {
-                listaProductos = arregloProductos.map(p => {
-                    const nombreProd = p.nombre || p.name || 'Producto';
-                    const cantidadProd = p.cantidad || p.qty || 1;
-                    return `${nombreProd} (${cantidadProd})`;
-                }).join(', ');
-            }
-
-            // 2. OBTENER EL NOMBRE DEL CLIENTE
+            // NOMBRE DEL CLIENTE
             const nombreCliente = orden.cliente || orden.studentName || 'Invitado';
 
             // 3. OBTENER EL ESTADO
@@ -73,23 +134,52 @@ async function cargarOrdenes() {
             if (estadoActual === 'pendiente') colorBadge = 'bg-warning text-dark';
             if (estadoActual === 'preparacion' || estadoActual === 'preparando') colorBadge = 'bg-primary';
             if (estadoActual === 'lista' || estadoActual === 'listo') colorBadge = 'bg-success';
+            if (estadoActual === 'recogido') colorBadge = 'bg-info';
 
-            // 🔴 NUEVA LÓGICA: Validar método y estado del pago de forma estricta
+
             const esTarjeta = orden.paymentIntentId !== null && orden.paymentIntentId !== undefined && orden.paymentIntentId !== '';
-            const pagoTexto = esTarjeta ? '🟢 Tarjeta (Stripe)' : '🟡 Efectivo (Cobrar)';
+            const pagoTexto = esTarjeta ? '💳Tarjeta ' : '💵Efectivo ';
             const pagoClase = esTarjeta ? 'bg-success' : 'bg-warning text-dark';
 
+            // clases para  lista de cambio de estado
+            if (estadoActual === 'pendiente') {
+                claseEstado = 'select-pendiente';
+            }
+
+            else if (estadoActual === 'preparacion' || estadoActual === 'preparando') {
+                claseEstado = 'select-preparacion';
+            }
+
+            else if (estadoActual === 'lista' || estadoActual === 'listo') {
+                claseEstado = 'select-lista';
+            }
+
+            else if (estadoActual === 'recogido') {
+                claseEstado = 'select-recogido';
+            }
+
             const selectEstado = `
-                <select class="form-select form-select-sm" onchange="cambiarEstadoOrden('${orden.id}', this.value)">
-                    <option value="pendiente" ${estadoActual === 'pendiente' ? 'selected' : ''}>Pendiente</option>
-                    <option value="preparacion" ${estadoActual === 'preparacion' || estadoActual === 'preparando' ? 'selected' : ''}>En preparación</option>
-                    <option value="lista" ${estadoActual === 'lista' || estadoActual === 'listo' ? 'selected' : ''}>Lista</option>
-                </select>
+            <select class="estado-select ${claseEstado}"onchange="cambiarEstadoOrden('${orden.id}', this.value)">
+                <option value="pendiente" ${estadoActual === 'pendiente' ? 'selected' : ''}>
+                    Pendiente
+                </option>
+
+                <option value="preparacion" ${estadoActual === 'preparacion' || estadoActual === 'preparando' ? 'selected' : ''}>
+                    En preparación
+                </option>
+
+                <option value="lista" ${estadoActual === 'lista' || estadoActual === 'listo' ? 'selected' : ''}>
+                    Lista
+                </option>
+                <option value="recogido" ${estadoActual === 'recogido' ? 'selected' : ''}>
+                    Recogido
+                </option>
+            </select>
             `;
 
             const fila = document.createElement('tr');
 
-            // 4. RENDERIZADO (Agregamos la columna del estado del pago antes del estado de preparación)
+            // Se rendereiza  lo anteriormente establecido
             fila.innerHTML = `
                 <td><strong>#${orden.id ? orden.id.slice(-4) : '????'}</strong></td>
                 <td>${nombreCliente}</td>
@@ -98,9 +188,7 @@ async function cargarOrdenes() {
                 <td>
                     <span class="badge ${pagoClase}">${pagoTexto}</span>
                 </td>
-                <td>
-                    <span class="badge ${colorBadge} text-capitalize">${estadoActual}</span>
-                </td>
+             
                 <td>${selectEstado}</td>
             `;
             tbody.appendChild(fila);
@@ -130,18 +218,25 @@ async function cargarMenu() {
                     <td>${imagenHTML}</td>
                     <td>
                         <strong>${item.nombre}</strong><br>
-                        <small style="color: #666;">${item.descripcion}</small>
+                        <small style="color: var(--ug-primary);">${item.descripcion}</small>
                     </td>
                     <td>${item.categoria}</td>
                     <td>$${Number(item.precio).toFixed(2)}</td>
                     <td style="color: ${item.disponible ? 'green' : 'red'}; font-weight: bold;">
                         ${item.disponible ? 'Disponible' : 'Agotado'}
                     </td>
-                    <td>
-                        <button class="btn btn-outline-secondary btn-sm" onclick="cambiarDisponibilidad('${item.id}', ${!item.disponible})">
-                            Marcar como ${item.disponible ? 'Agotado' : 'Disponible'}
-                        </button>
-                    </td>
+                  <td class="acciones-columna">
+        <div class="acciones-vertical">
+            
+        
+            <button class="btn btn-outline-secondary btn-sm" onclick="cambiarDisponibilidad('${item.id}', ${!item.disponible})">
+                ${item.disponible ? '🚫 Marcar agotado' : '✅ Marcar disponible'}
+            </button>
+            <button class="btn btn-outline-secondary btn-sm" onclick="eliminarPlatillo('${item.id}', '${item.nombre.replace(/'/g, "\\'")}')">
+    🗑️ Eliminar producto
+</button>
+        </div>
+    </td>
                 `;
             tbody.appendChild(fila);
         });
@@ -153,6 +248,7 @@ async function cargarMenu() {
 async function agregarPlatillo(e) {
     e.preventDefault();
     const form = e.target;
+    const alertaAddMenu = document.getElementById('alertAddMenu')
 
     const formData = new FormData();
     formData.append('nombre', document.getElementById('prod-nombre').value);
@@ -167,23 +263,30 @@ async function agregarPlatillo(e) {
     }
 
     try {
+
+
         const respuesta = await fetch(API_URL, {
             method: 'POST',
             body: formData
         });
 
         if (respuesta.ok) {
-            alert("¡Platillo agregado exitosamente!");
+            showAlert(alertaAddMenu, "¡Platillo agregado exitosamente!", false)
             form.reset();
-            cargarMenu(); // Recargar la tabla para ver el nuevo platillo
+            cargarMenu();
         } else {
             const errorData = await respuesta.json();
-            alert("Error: " + errorData.msg);
+            showAlert(alertaAddMenu, errorData.msg)
+
         }
     } catch (error) {
         console.error("Error en la solicitud POST:", error);
+    } finally {
+        showAlert(alertaAddMenu, '')
     }
 }
+
+
 
 
 window.cambiarDisponibilidad = async function (id, nuevoEstado) {
@@ -207,15 +310,81 @@ window.cambiarDisponibilidad = async function (id, nuevoEstado) {
 };
 window.cambiarEstadoOrden = async function (id, nuevoEstado) {
     try {
-        const respuesta = await fetch(`${ORDERS_URL}/${id}/estado`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ estado: nuevoEstado })
-        });
-        if (respuesta.ok) {
-            cargarOrdenes(); // Refresca la lista de comandos automáticamente
+        // Si el estado es "recogido", eliminamos la orden para todos
+        if (nuevoEstado === 'recogido') {
+            const confirmacion = confirm('¿Está seguro que desea eliminar esta orden? Se borrará para el staff y para el estudiante.');
+            if (!confirmacion) return;
+
+            const respuesta = await fetch(`${ORDERS_URL}/${id}`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            if (respuesta.ok) {
+                cargarOrdenes(); // Refresca la lista de comandos automáticamente
+                alert('✅ Orden eliminada exitosamente');
+            } else {
+                alert('Error al eliminar la orden');
+            }
+        } else {
+            // Para otros estados, solo actualizar lo que corresponde
+            const respuesta = await fetch(`${ORDERS_URL}/${id}/estado`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ estado: nuevoEstado })
+            });
+            if (respuesta.ok) {
+                cargarOrdenes();
+            }
         }
     } catch (error) {
         console.error("Error al actualizar el estado de la orden:", error);
+    }
+};
+
+// ========== NUEVAS FUNCIONES ==========
+window.editarPrecio = async function (id, precioActual) {
+    const nuevoPrecio = prompt("Ingrese el nuevo precio para este platillo:", precioActual);
+    if (nuevoPrecio === null) return;
+    const precioNumerico = parseFloat(nuevoPrecio);
+    if (isNaN(precioNumerico) || precioNumerico <= 0) {
+        alert("Por favor ingrese un precio válido mayor a 0.");
+        return;
+    }
+    try {
+        const respuesta = await fetch(`${API_URL}/${id}/precio`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ precio: precioNumerico })
+        });
+        if (respuesta.ok) {
+            alert("✅ Precio actualizado");
+            cargarMenu();
+        } else {
+            const error = await respuesta.json();
+            alert("❌ Error: " + (error.msg || error.message));
+        }
+    } catch (error) {
+        console.error("Error en editarPrecio:", error);
+        alert("Error de conexión");
+    }
+};
+
+// Función correcta para eliminar platillo (sin export)
+window.eliminarPlatillo = async function (id, nombre) {
+    const confirmar = confirm(`¿Eliminar "${nombre}"? No se puede deshacer.`);
+    if (!confirmar) return;
+    try {
+        const respuesta = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+        if (respuesta.ok) {
+            alert(`🗑️ "${nombre}" eliminado`);
+            cargarMenu();
+        } else {
+            const error = await respuesta.json();
+            alert("❌ Error: " + (error.msg || error.message));
+        }
+    } catch (error) {
+        console.error("Error en eliminarPlatillo:", error);
+        alert("Error de conexión");
     }
 };

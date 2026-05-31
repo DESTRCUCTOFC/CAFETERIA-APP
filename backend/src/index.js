@@ -1,6 +1,6 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
-import 'dotenv/config';
 import { db } from './config/firebase.js';
 import authRoutes from './modules/auth/auth.routes.js';
 import menuRoutes from './modules/menu/menu.routes.js';
